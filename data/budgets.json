@@ -1,0 +1,51 @@
+[
+  {
+    "id": "b1",
+    "category": "cat2",
+    "limit": 1500,
+    "spent": 1200,
+    "period": "monthly"
+  },
+  {
+    "id": "b2",
+    "category": "cat3",
+    "limit": 300,
+    "spent": 150,
+    "period": "monthly"
+  },
+  {
+    "id": "b3",
+    "category": "cat4",
+    "limit": 200,
+    "spent": 175,
+    "period": "monthly"
+  },
+  {
+    "id": "b4",
+    "category": "cat5",
+    "limit": 150,
+    "spent": 120,
+    "period": "monthly"
+  },
+  {
+    "id": "b5",
+    "category": "cat6",
+    "limit": 100,
+    "spent": 60,
+    "period": "monthly"
+  },
+  {
+    "id": "b6",
+    "category": "cat7",
+    "limit": 100,
+    "spent": 145,
+    "period": "monthly"
+  },
+  {
+    "id": "b7",
+    "category": "cat8",
+    "limit": 200,
+    "spent": 200,
+    "period": "monthly"
+  }
+]

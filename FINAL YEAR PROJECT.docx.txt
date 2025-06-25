@@ -1,0 +1,382 @@
+﻿JABU EXPENSE TRACKER: AN INTELLIGENT FINANCIAL MANAGEMENT TOOL FOR INSTITUTIONS AND INDIVIDUALS EXPENSE ANALYZER
+
+
+ABEGUNDE OLAYINKA EBENEZER
+ (2103030012)
+ 
+ 
+A PROJECT SUBMITTED TO THE DEPARTMENT OF COMPUTER SCIENCE (CSC), COLLEGE AND AGRICULTURE AND NATURAL SCIENCE, JOSEPH AYO BABALOLA UNIVERSITY, OSUN STATE.
+
+
+IN PARTIAL FULFILMENT OF THE REQUIREMENTS FOR THE AWARD OF BACHELOR OF SCIENCE (B.SC) DEGREE IN COMPUTER
+SCIENCE.
+
+
+
+
+APRIL 2025
+
+
+
+CERTIFICATION
+
+
+This is to certify that this project was carried out by ABEGUNDE OLAYINKA EBENEZER, with matric number 2103030012 of the department of computer science, Joseph Ayo Babalola University, Ikeji-Arakeji and has been approved as part of the requirement for the award of Bachelor of science in computer science (B.sc computer science)
+
+
+…………………………………                               …………………………………
+Mr. Adegoke                     Signature and Date
+(Supervisor)
+
+
+…………………………………                               ……………………………………
+Mr./Mrs./Dr.                     Signature and Date
+(External Examiner)
+
+
+…………………………………                              …………………………………….
+Dr. O.O Lawal                   Signature and Date
+(Head of Department)        
+________________
+
+
+DEDICATION
+
+
+With deep gratitude, I dedicate this project to God Almighty, whose mercy, strength, grace, and wisdom have guided me through life and my academic journey, despite the challenges and obstacles along the way.
+I also dedicate this work to my parents, who have supported me in every stage of my life and education. I am sincerely grateful for their encouragement and assistance throughout my studies.
+________________
+
+
+ACKNOWLEDGEMENT
+
+
+My heartfelt appreciation goes to everyone who has played a part in the completion of this project. Foremost, I express my gratitude to MR. ADEGOKE, my esteemed supervisor, whose guidance and insightful feedback have significantly influenced the shaping of this report.
+I also acknowledge the unwavering support and understanding of my family and friends, whose constant encouragement and motivation have been invaluable throughout my academic journey.
+I am grateful to everyone who has contributed their time, knowledge, and support to this report, and I thank you all for your valuable contributions.
+________________
+
+
+Table of Contents
+CERTIFICATION        2
+DEDICATION        3
+ACKNOWLEDGEMENT        4
+CHAPTER ONE        8
+INTRODUCTION        8
+1.1 BACKGROUND OF STUDY        8
+1.2 STATEMENT OF PROBLEM        9
+1.3  SIGNIFICANCE OF THE STUDY        10
+1.4 AIMS AND OBJECTIVES        10
+1.4.1 Aims        10
+1.4.2 Objectives        11
+1.5 METHODOLOGY        11
+1.6 SCOPES AND LIMITATIONS        12
+1.6.1 Scope of study        12
+1.6.2 Limitations in carrying out this project are        12
+1.7 ORGANIZATION OF PROJECT        13
+CHAPTER TWO        14
+LITERATURE REVIEW        14
+2.1 HISTORICAL BACKGROUND OF EXPENSE TRACKING        14
+2.2 Expense Tracker Management System        16
+2.2.1 Expense Tracker Management System        16
+2.2.2 Concept of Expense Tracker Management System        17
+2.3 Existing Systems on Expense Tracking        18
+2.3.1 The Manual or Traditional System        18
+2.3.2 Problems Associated with the Manual or Traditional System        18
+2.3.3 Existing Similar Systems and Their Limitations        19
+2.3.4 General Limitations of All Existing Systems        19
+2.4 REVIEW OF NEW SYSTEM        20
+2.4.1 Expected Results of the New System        20
+2.5 OVERVIEW OF EXPENSE TRACKER        21
+Key Features of an Expense Tracker        21
+Benefits of an Expense Tracker        22
+Implementation and Technologies Used        22
+CHAPTER THREE        23
+METHODOLOGY AND SYSTEM DESIGN        23
+3.1 Research Methodology        23
+3.1.1 Phases of SSADM        23
+3.2 System Architecture        24
+3.2.1 Client-Side Architecture        24
+3.2.2 Server-Side Architecture        24
+3.3 Data Flow Diagrams        24
+3.3.1 Level 0 DFD................        25
+3.3.2 Level 1 DFD        25
+3.4 User Interface Design        25
+3.4.1 Dashboard Screen        25
+3.4.2 Expense Logging Screen        25
+3.4.3 Reports Screen        26
+3.6 Database Design        26
+3.6 Security Measures        26
+REFRENCES        27
+
+
+
+
+________________
+
+
+LIST OF FIGURES
+Figure 3.1: Use Case Diagram for an Expense Tracker System..............…………….................27
+Figure 3.2: Expense Tracker System Architecture...................................…………….................28
+Figure 3.3:Login Authentication Codebase for the App...........................…………….................29
+
+
+
+
+________________
+ABSTRACT
+Jabu Expense Tracker is a smart financial management tool designed to help individuals and institutions track and manage their expenses with ease. It provides real-time insights into spending habits, helping users create better budgets and stay on top of their finances. With features like automated expense categorization, detailed reports, Jabu Expense Tracker simplifies financial tracking and planning. The goal is to make managing money easier and more efficient, helping users stay organized and in control of their financial goals.
+This software can be used by end user who have Andriod & IOS running devices with them.The language that we use to develop this system is React Native, Expo and Firebase.
+________________
+
+
+CHAPTER ONE
+INTRODUCTION
+1.1 BACKGROUND OF STUDY
+Jabu Expense Tracker is a financial management tool designed to help individuals, institutions and businesses keep track of their expenses and stay on top of their budgets. It provides a simple and organized way to record transactions, set spending limits, and monitor cash flow, making financial management easier and more efficient.
+Users can log daily expenses, categorize them, and keep track of where their money is going. Each transaction can include details like payment method, date, and description, with the option to attach receipts for better record-keeping. Filtering options make it easy to review spending by category.
+JET (Jabu Expense Tracker) also helps with budgeting by allowing users to set spending limits for different categories and receive alerts when they’re getting close to their limit. It provides a clear view of income and expenses, helping users make informed decisions about their financial habits.
+For businesses and institutions, Jabu Expense Tracker offers features for tracking departmental expenses, managing team budgets, and generating financial reports. 
+Users can also track payments, refunds, and reimbursements while keeping an organized history of all transactions. Whether online or offline, the tracker ensures that expenses are always recorded.
+Security is also a priority, with features like password protection, biometric login, and encrypted data storage to keep financial information safe. 
+Jabu Expense Tracker is designed to make managing money simple and stress-free. Whether for personal use, businesses and institutions finances, it helps users stay organized, reduce unnecessary spending, and achieve their financial goals with confidence.
+
+
+1.2 STATEMENT OF PROBLEM
+Managing expenses effectively is a challenge for both individuals and institutions. Many people struggle with tracking their spending, leading to financial mismanagement, overspending, and difficulty in achieving financial goals. Businesses and organizations face similar issues, often lacking a structured system to monitor departmental expenses, manage budgets, and generate financial reports efficiently.
+Traditional methods of tracking expenses, such as manual record-keeping or spreadsheets, can be time-consuming, error-prone, and difficult to maintain. Without real-time insights and proper financial planning, users may find it hard to control their cash flow, identify unnecessary expenditures, or make informed financial decisions.
+Jabu Expense Tracker aims to address these issues by providing an user friendly, automated, and secure financial management system. It simplifies expense tracking, budgeting, and financial reporting, helping individuals, businesses and institutions take control of their finances and achieve better financial stability.
+1.3 SIGNIFICANCE OF THE STUDY
+The Jabu Expense Tracker is important because it helps individuals and businesses manage their finances in a simple and organized way. Many people struggle with tracking their expenses, which can lead to poor budgeting and financial stress. By using this tracker, individuals can monitor their spending, set budgets, and avoid unnecessary expenses, making it easier to save money and plan for the future.
+For individuals and institutions, keeping track of expenses is essential for maintaining a stable budget and avoiding financial losses. Without a proper system, it can be difficult to manage spending, track payments, and generate reports. This tracker helps institutions organize their financial records, improve accountability, and make better decisions.
+Overall, this study is significant because it highlights how a simple and effective expense tracker (JET) can improve financial management for both individuals and institutions. By making it easier to track spending and manage budgets, Jabu Expense Tracker helps users take better control of their finances.
+
+
+1.4 AIMS AND OBJECTIVES
+1.4.1 Aims
+The aim of this project is to design and implement Jabu Expense Tracker, an intelligent financial management tool for individuals and institutions. 
+1.4.2 Objectives
+* Make Expense Tracking Easier – Replace the manual way of tracking expenses with a simple digital system where individuals and institutions can record and organize their spending.
+* Help with Budgeting – Allow users to set budgets, track their spending, and receive alerts when they are close to their limits, helping them manage their money better.
+* Generate Financial Reports – Provide users with clear and easy-to-understand reports on their expenses, income, and cash flow to help them make better financial decisions.
+* Allow Multiple Users for Institutions – Enable institutions to have different users managing expenses, approving payments, and keeping track of budgets in one place.
+* Make It Easy to Use – Create a simple and clear interface so that anyone, regardless of their financial background, can track their expenses without confusion.
+1.5 METHODOLOGY
+This project follows the Structured System Analysis and Design Methodology (SSADM), which is a step-by-step process for developing applications. This method helps in properly analyzing and designing the expense tracker before moving on to development.
+React Native is used to develop the mobile app, making it work on both Android and iOS. A web version may also be developed for users who prefer accessing the tracker on a computer. The backend will be built using Node.js, and Firebase will be used to store financial data securely and keep it updated in real time.
+This structured approach ensures the expense tracker is well-planned, easy to use, and reliable. The system will help individuals track their spending and savings while also allowing institutions to organize their financial records and manage expenses more efficiently.
+1.6 SCOPES AND LIMITATIONS
+1.6.1 Scope of study
+The Jabu Expense Tracker is designed to help individuals and institutions keep track of their daily expenses, set budgets, and generate financial reports. It provides a simple and organized way to manage spending without the need for complex accounting knowledge.
+The tracker is meant for individuals who want to monitor their personal finances and institutions that need a straightforward system to manage expenses. Users can manually log transactions, categorize expenses, and review their spending patterns over time.
+However, the Jabu Expense Tracker is not designed for handling advanced financial tasks such as tax calculations, payroll processing, or investment tracking. It also does not support automatic bank syncing, bill payments, or multi-currency management.
+The focus of this system is to make expense tracking simple and accessible, helping users stay organized and make better financial decisions without unnecessary complexity.
+
+
+1.6.2 Limitations in carrying out this project are 
+* Limited Research Materials – Finding relevant materials and references on expense tracking systems can be challenging, as some useful resources may not be freely available.
+* Financial Constraint – Some essential tools, software, or research materials may require payment, which can affect the project's scope and quality.
+* Limited Experience – Challenges may arise due to limited experience in using certain development tools, frameworks, or online resources, which may slow down the implementation process.
+1.7 ORGANIZATION OF PROJECT
+This Project is presented into 5 chapters. 
+Chapter 1 is the introduction of the project which includes the background of study, problem statement, aims and objectives, methodology, scope and limitations of the project.
+Chapter 2 states the literature review and the history of the project topic, the concept of the topic, web portals and the solutions to the problem 
+Chapter 3 studies the research methodology which provides the information by which the validity of the study is judged, it will describe the activities undertaken to provide solutions to the problem statements describe how it will be done and justify the experimental design.  
+Chapter 4 will describe the interface and how to use it. 
+Chapter 5 concludes the whole project giving appropriate recommendations.
+
+
+________________
+
+
+CHAPTER TWO
+LITERATURE REVIEW
+2.1 HISTORICAL BACKGROUND OF EXPENSE TRACKING 
+The practice of tracking expenses has been a crucial aspect of financial management for centuries. Early civilizations relied on primitive methods such as tally sticks, clay tablets, and handwritten ledgers to record financial transactions. These rudimentary accounting systems helped individuals and businesses monitor their income and expenditures, laying the foundation for modern financial tracking systems (Smith, 1998).
+The first known method of expense tracking dates back to the Mesopotamian civilization around 3000 BCE, where merchants and traders used cuneiform tablets to record financial transactions. These early records indicate an effort to manage trade, debts, and payments systematically (Klein & Moore, 2001). Similarly, ancient Egyptian accountants used papyrus scrolls to document financial exchanges, reflecting the growing need for organized financial record-keeping (Johnson, 2005).
+During the medieval period, bookkeeping practices evolved significantly. The introduction of the double-entry bookkeeping system in 1494 by Luca Pacioli revolutionized financial record-keeping. Pacioli's system provided a structured approach to tracking financial transactions, ensuring greater accuracy and transparency in expense management. This method is still used in modern accounting practices, serving as the basis for personal and corporate financial management (Pacioli, 1494).
+The Industrial Revolution in the 18th and 19th centuries further transformed expense tracking. With the expansion of businesses and trade, financial management became more complex, necessitating more systematic record-keeping methods. Companies began employing professional accountants to manage their books, while individuals started maintaining personal ledgers to track household expenses. The widespread use of paper-based accounting systems allowed for more detailed and structured financial records (Williams, 1872).
+The advent of computers in the mid-20th century brought significant advancements in financial management. The introduction of spreadsheet software, such as VisiCalc in 1979 and Microsoft Excel in 1985, enabled individuals and businesses to automate financial calculations and record-keeping. These digital tools provided users with a more efficient and accurate way to track expenses, reducing the reliance on manual calculations (Power, 2004).
+With the rise of the internet and mobile technology in the 21st century, expense tracking has become even more sophisticated. The emergence of financial applications, such as Mint, YNAB (You Need a Budget), and PocketGuard, has allowed users to track expenses in real time, categorize spending, and set financial goals. These applications integrate with bank accounts and credit cards, providing automated expense tracking and analysis (Deloitte, 2019).
+The future of expense tracking is expected to involve further automation through artificial intelligence and machine learning. AI-powered financial management tools can predict spending patterns, offer budget recommendations, and provide personalized financial insights. As technology continues to evolve, expense tracking will become increasingly seamless, enhancing financial literacy and personal financial management (McKinsey, 2022).
+2.2 Expense Tracker Management System
+2.2.1 Expense Tracker Management System
+An expense tracker management system is designed to help individuals and businesses monitor financial transactions effectively. It enables users to record income and expenditures, categorize expenses, set budgets, and generate financial reports. By providing real-time insights into spending patterns, the system aids in better financial planning.
+Expense tracking systems can be web-based, mobile applications, or desktop software. These systems store financial data in a structured database, allowing users to track transactions and analyze financial health. Many modern expense trackers integrate with banking systems and digital payment platforms to automate data entry, minimizing errors and manual effort.
+Features of an Expense Tracker Management System
+* Income and Expense Logging: Users can manually input or automatically import transaction data to maintain financial records 
+* Budget Management: The system allows users to set budget limits for various expense categories and provides alerts when approaching these limits
+* Automated Transaction Tracking: Integration with bank accounts and digital payment methods enables real-time expense tracking 
+* Financial Report Generation: Users can generate detailed reports, including spending summaries and cash flow analysis.
+* Data Security: Expense trackers use encryption techniques to protect sensitive financial information from unauthorized access 
+* User Role Management: Businesses or institutions can provide role-based access, allowing employees to input expense.
+Benefits of an Expense Tracker Management System
+* Enhances financial discipline by monitoring expenses and income effectively 
+* Reduces financial mismanagement by providing clear insights into spending habits.
+* Encourages savings by helping users identify unnecessary expenditures.
+* Improves decision-making by offering real-time financial analytics (Anderson, 2019).
+How Does an Expense Tracker Management System Work?
+1. Users create an account and configure financial settings.
+2. Transactions are logged manually or imported automatically from linked accounts
+3. The system categorizes expenses, providing a breakdown of spending patterns.
+4. Budgeting features notify users when they exceed preset financial limits.
+5. Reports and graphical analytics offer a comprehensive view of financial health 
+With advancements in artificial intelligence and data analytics, modern expense tracker systems can offer predictive insights, expense optimization recommendations, and automated savings plans. These innovations help individuals, institutions and businesses maintain financial stability and make informed economic decisions.
+2.2.2 Concept of Expense Tracker Management System
+The concept of an expense tracker management system revolves around the need for individuals and businesses to efficiently manage financial transactions and budgeting. An expense tracker is designed to systematically record, categorize, and analyze financial activities, helping users to stay within their budget and make informed financial decisions 
+2.3 Existing Systems on Expense Tracking
+The existing systems for expense tracking vary from traditional manual methods to advanced digital solutions. These systems have evolved to address financial management challenges and enhance user experience.
+2.3.1 The Manual or Traditional System
+The manual or traditional expense tracking system involves the use of paper-based methods, such as handwritten ledgers, notebooks, and spreadsheets, to record financial transactions. This approach requires individuals to document every income and expense entry manually, making it time-consuming and susceptible to human errors (Miller, 2019).
+Common features of a traditional expense tracking system include:
+* Physical record-keeping using notebooks or registers.
+* Manual calculation of budgets and expenses.
+* Limited ability to analyze financial trends due to lack of automated tools.
+While this method has been used for centuries, it has significant limitations, particularly in an era where digital solutions provide real-time financial insights and automation.
+2.3.2 Problems Associated with the Manual or Traditional System
+* Inefficiency: Manual tracking is time-consuming and prone to miscalculations, making financial management cumbersome (Garcia, 2018).
+* Difficulty in managing data: Without digital tools, tracking and analyzing financial transactions over time can be challenging (Wilson, 2020).
+* Lack of automation: Manual systems do not offer automated reminders for bill payments or budget tracking, increasing the risk of financial mismanagement (Stevens, 2019).
+* Limited accessibility: Paper records can be easily lost or damaged, making long-term financial tracking difficult
+2.3.3 Existing Similar Systems and Their Limitations
+* Mint: A popular expense tracking app that offers budgeting tools and automatic expense categorization. However, some users report concerns over data security and limited customization options.
+* YNAB (You Need A Budget): A budgeting-focused tracker that helps users allocate income towards savings goals. The main limitation is its steep learning curve and subscription-based pricing.
+* PocketGuard: This app provides users with an overview of available spending funds after accounting for bills and savings. However, its free version has limited features, and bank integration issues have been reported.
+2.3.4 General Limitations of All Existing Systems
+* Complexity: Some systems have complicated user interfaces that require a learning curve, making them difficult for beginners 
+* Cost: Many advanced expense trackers require monthly subscriptions, which may not be affordable for all users 
+* Limited customization: Some expense tracking apps do not allow users to create custom spending categories or modify reports
+* Technical issues: Users often experience bugs, slow performance, and synchronization errors with their banking institutions 
+* Integration challenges: Some trackers have limited integration with third-party financial tools, reducing their effectiveness
+2.4 REVIEW OF NEW SYSTEM
+Going through the limitations of the existing systems, the project aims to address and improve upon each identified weakness. The new system will be designed specifically for tracking expenses, user-friendliness, and customization according to user needs. The functionalities will be enhanced to provide more precise financial tracking, reporting, and management features.
+2.4.1 Expected Results of the New System
+The new system will improve upon the limitations of existing expense tracking systems by offering the following benefits:
+* Improved Efficiency: The system will automate various financial processes, such as expense categorization, budgeting, and financial report generation. This will help reduce manual effort, minimize errors, and improve overall productivity
+* Enhanced User Experience: The new expense tracker will feature an intuitive and user-friendly interface that allows users to input, track, and manage their expenses with ease. 
+* Better Financial Insights: The system will generate comprehensive reports and analytics, helping users understand their spending patterns, savings trends, and overall financial health. These insights will aid in making informed financial decisions
+* Cost Savings: By reducing the reliance on manual record-keeping and expensive financial management software, the new system will provide an affordable and efficient solution for individuals and small businesses. The automation of expense tracking will also minimize financial mismanagement and improve savings strategies 
+* Free to Use: JET will be freely available for users, ensuring accessibility to individuals,  institutions and businesses regardless of their financial capacity.
+2.5 OVERVIEW OF EXPENSE TRACKER
+An expense tracker is a financial management tool designed to help individuals and institutions record, categorize, and analyze their expenditures. It enables users to monitor their spending habits, set budget goals, and make informed financial decisions. Typically, expense trackers can be accessed through web applications, mobile apps, or integrated financial management systems.
+Key Features of an Expense Tracker
+1. Expense Recording - Users can log their daily expenses, specifying categories such as food, transportation, utilities, entertainment, and more.
+2. Budget Management - Provides users with tools to set budget limits and receive alerts when approaching or exceeding those limits.
+3. Data Visualization - Generates charts and graphs to help users understand their spending patterns and trends.
+4. Income and Expense Categorization - Organizes transactions based on predefined or customizable categories.
+5. Recurring Expenses Tracking - Automates the logging of fixed monthly expenses such as rent, subscriptions, and loan repayments.
+6. Security and Privacy - Implements encryption and authentication measures to ensure user data protection.
+Benefits of an Expense Tracker
+* Financial Awareness: Helps users gain insights into their spending habits.
+* Improved Budgeting: Encourages better financial planning and saving.
+* Debt Management: Assists in tracking and managing loans and credit card expenses.
+* Convenience: Automates data entry and categorization, saving users time.
+* Data-Driven Decisions: Provides analytical tools to optimize financial strategies.
+Implementation and Technologies Used
+Expense trackers are typically developed using modern web technologies such as React.js, React Native for mobile applications, and backend services like Node.js, Firebase, or Django. They also integrate third-party APIs for bank synchronization and payment tracking.
+________________
+
+
+CHAPTER THREE
+METHODOLOGY AND SYSTEM DESIGN
+ 3.1 Research Methodology
+The development of the Jabu Expense Tracker followed the Structured System Analysis and Design Methodology (SSADM). This systematic approach ensures that all aspects of the system are thoroughly analyzed and designed before moving into the development phase. 
+
+
+ 3.1.1 Phases of SSADM
+1. Feasibility Study: An initial assessment was conducted to determine the viability of the project.
+2. Requirements Analysis: Detailed requirements were gathered from potential users to understand their needs.
+3. System Design: The logical design of the system was created, outlining how the system would meet user requirements.
+4. Implementation: The system was developed using React Native for the mobile application, Node.js for the backend, and Firebase for real-time data storage.
+5. Testing and Deployment: Rigorous testing was carried out to ensure the system functions as intended before deployment.
+ 3.2 System Architecture
+The architecture of the Jabu Expense Tracker is designed to ensure scalability, security, and ease of use. The system follows a client-server model where the client-side is built using React Native, and the server-side uses Node.js with Firebase integration for data management.
+
+
+ 3.2.1 Client-Side Architecture
+- Frontend Framework: React Native
+- State Management: Redux for managing global state
+- UI/UX Design: Simple and intuitive interfaces.
+
+
+ 3.2.2 Server-Side Architecture
+- Backend Framework: Node.js
+- Database: Firebase for real-time data synchronization
+- Authentication: Firebase Authentication for secure login
+
+
+ 3.3 Data Flow Diagrams
+Data flow diagrams (DFDs) illustrate how data moves through the system. Below are the DFDs representing different levels of the Jabu Expense Tracker.
+
+
+ 3.3.1 Level 0 DFD
+This diagram shows the overall interaction interactions between users and the system of the application 
+The application has the following functionalities: 
+1. Log in and log out, where the user can create a new account, specify user information and log out of the application
+ 2. Add new transactions, where users can add their income and bills from shopping
+ 3. View and edit existing transactions 
+4. Categories to categorize user expenses. Users can add new categories or edit existing ones. 
+5. Statistics that include a line chart and a pie chart to show the difference between incomes and outcomes that changes over months and expenses divided by categories.
+  FIGURE 3.1 Use Case Diagram for an Expense Tracker System.
+ 3.3.2 Level 1 DFD
+This diagram breaks down the main processes within the system, highlighting interactions between subsystems like user authentication, expense logging, and report generation.
+  
+
+        Figure 3.2 Expense Tracker System Architecture.
+The diagram visually represents the key processes within an Expense Tracker System, showcasing the interactions between its core subsystems:
+1. User Authentication
+* Users sign up or log in to the system.
+* Authentication is handled using credentials email and password.
+* Once authenticated, users gain access to their personal expense data.
+  
+
+Figure 3.3 Login Authentication Codebase
+2. Expense Logging
+* Users can add, edit, or delete expenses, categorizing them under labels such as "Food," "Transport," or "Bills."
+* The system records transaction details like amount, date, category.
+* Data is stored in the database for easy retrieval and processing.
+3. Report Generation
+* The system analyzes logged expenses and provides summaries and insights.
+* Users can view reports in various formats, such as charts, tables, or graphs, to track their spending habits.
+* Reports can be exported as PDFs for further use.
+
+
+User Authentication connects to Expense Logging to ensure only authorized users can record data.
+Expense Logging feeds data into Report Generation, allowing users to analyze their financial activities.
+Report Generation can prompt users to log new expenses based on spending patterns.
+
+
+
+
+ 3.4 User Interface Design
+The user interface (UI) design focuses on providing an intuitive and user-friendly experience. Key screens include the dashboard, expense logging, budget management, and reports.
+<!--DIAGRAM HERE-->
+ 3.4.1 Dashboard Screen
+Displays an overview of the user’s financial status, including total expenses, income, and budget limits.
+<!--DIAGRAM HERE-->
+ 3.4.2 Expense Logging Screen
+Allows users to input and categorize their daily expenses easily.
+<!--DIAGRAM HERE-->
+ 3.4.3 Reports Screen
+Provides detailed insights into spending patterns through charts and graphs.
+<!--DIAGRAM HERE-->
+ 3.6 Database Design
+The database schema is designed to efficiently store and retrieve financial data. Below is the Entity-Relationship Diagram (ERD) illustrating the relationships between various entities in the system.
+<!--DIAGRAM HERE-->
+ 3.6 Security Measures
+Security is a top priority in the Jabu Expense Tracker. The following measures have been implemented:
+- Data Encryption: All sensitive data is encrypted both at rest and in transit.
+- Authentication: Biometric login and password protection ensure only authorized access.
+- Access Control: Role-based access control for institutional users.
+________________
+
+
+REFRENCES
+* Smith, J. (1998). Ancient Financial Systems and Their Influence. Oxford University Press.
+* Klein, R., & Moore, D. (2001). The Evolution of Accounting Practices. Cambridge University Press.
+* Johnson, M. (2005). Papyrus and Parchment: The History of Written Financial Records. Harvard University Press.
+* Williams, T. (1872). The Industrial Revolution and Financial Management. New York: Harper & Brothers.
+* Power, J. (2004). The Digital Transformation of Financial Management. MIT Press.
+* Deloitte. (2019). Financial Technology Trends: The Evolution of Expense Tracking. Deloitte Insights.
+* McKinsey & Company. (2022). The Future of Financial Technology and Expense Management. McKinsey Global Institute.
+* Mobile Development with react native. https://www.freecodecamp.org/news/mobile-app-development-with-react-native/

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "cat1",
+    "name": "Income",
+    "icon": "cash-outline",
+    "color": "#4CAF50"
+  },
+  {
+    "id": "cat2",
+    "name": "Housing",
+    "icon": "home-outline",
+    "color": "#2196F3"
+  },
+  {
+    "id": "cat3",
+    "name": "Groceries",
+    "icon": "cart-outline",
+    "color": "#FF9800"
+  },
+  {
+    "id": "cat4",
+    "name": "Dining",
+    "icon": "restaurant-outline",
+    "color": "#F44336"
+  },
+  {
+    "id": "cat5",
+    "name": "Utilities",
+    "icon": "flash-outline",
+    "color": "#9C27B0"
+  },
+  {
+    "id": "cat6",
+    "name": "Transportation",
+    "icon": "car-outline",
+    "color": "#607D8B"
+  },
+  {
+    "id": "cat7",
+    "name": "Entertainment",
+    "icon": "film-outline",
+    "color": "#E91E63"
+  },
+  {
+    "id": "cat8",
+    "name": "Shopping",
+    "icon": "bag-outline",
+    "color": "#3F51B5"
+  },
+  {
+    "id": "cat9",
+    "name": "Health",
+    "icon": "medical-outline",
+    "color": "#00BCD4"
+  }
+]

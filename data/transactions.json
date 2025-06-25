@@ -1,0 +1,82 @@
+[
+  {
+    "id": "t1",
+    "description": "Salary",
+    "amount": 3000,
+    "date": "2023-06-01",
+    "category": "cat1",
+    "type": "income"
+  },
+  {
+    "id": "t2",
+    "description": "Rent",
+    "amount": 1200,
+    "date": "2023-06-02",
+    "category": "cat2",
+    "type": "expense"
+  },
+  {
+    "id": "t3",
+    "description": "Groceries",
+    "amount": 150,
+    "date": "2023-06-03",
+    "category": "cat3",
+    "type": "expense"
+  },
+  {
+    "id": "t4",
+    "description": "Dining Out",
+    "amount": 75,
+    "date": "2023-06-04",
+    "category": "cat4",
+    "type": "expense"
+  },
+  {
+    "id": "t5",
+    "description": "Freelance Work",
+    "amount": 500,
+    "date": "2023-06-05",
+    "category": "cat1",
+    "type": "income"
+  },
+  {
+    "id": "t6",
+    "description": "Utilities",
+    "amount": 120,
+    "date": "2023-06-06",
+    "category": "cat5",
+    "type": "expense"
+  },
+  {
+    "id": "t7",
+    "description": "Transportation",
+    "amount": 60,
+    "date": "2023-06-07",
+    "category": "cat6",
+    "type": "expense"
+  },
+  {
+    "id": "t8",
+    "description": "Entertainment",
+    "amount": 45,
+    "date": "2023-06-08",
+    "category": "cat7",
+    "type": "expense"
+  },
+  {
+    "id": "t9",
+    "description": "Shopping",
+    "amount": 200,
+    "date": "2023-06-09",
+    "category": "cat8",
+    "type": "expense"
+  },
+  {
+    "id": "t10",
+    "description": "Health",
+    "amount": 80,
+    "date": "2023-06-10",
+    "category": "cat9",
+    "type": "expense"
+  }
+]

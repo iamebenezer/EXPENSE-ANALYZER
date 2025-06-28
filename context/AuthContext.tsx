@@ -121,36 +121,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     name: string,
     email: string,
     password: string
-  ): Promise<boolean> => {
+  ): Promise<string | true> => {
     try {
-      // Create user with Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-
       if (firebaseUser) {
-        // Create user document in Firestore
         const userDocRef = doc(db, "users", firebaseUser.uid);
         await setDoc(userDocRef, {
           uid: firebaseUser.uid,
           name,
           email,
-          createdAt: new Date(), 
+          createdAt: new Date(),
         });
-
         const appUser: User = {
           uid: firebaseUser.uid,
           name,
           email,
         };
-
         await AsyncStorage.setItem("user", JSON.stringify(appUser));
         setUser(appUser);
         return true;
       }
-      return false; 
+      return "Unknown error";
     } catch (error: any) {
       console.error("Signup error", error);
-      return false;
+      if (error.code) {
+        return error.code;
+      }
+      return "Signup failed";
     }
   };
 

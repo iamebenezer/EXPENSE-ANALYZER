@@ -23,14 +23,13 @@ const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const handleResetPassword = async () => {
     if (!email) {
       Alert.alert("Error", "Please enter your email address.");
       return;
     }
-
     setIsLoading(true);
     try {
       await sendPasswordResetEmail(auth, email);
@@ -38,12 +37,15 @@ const ForgotPasswordScreen = () => {
         "Check Your Email",
         "A password reset link has been sent to your email address if it's associated with an account."
       );
-      router.back(); // Go back to the login screen
+      router.back();
     } catch (error: any) {
-      console.error("Password reset error", error);
-      // You can check error.code for more specific Firebase errors
-      // e.g., 'auth/user-not-found'
-      Alert.alert("Error", "Failed to send password reset email. Please check the email address and try again.");
+      let message = "Failed to send password reset email. Please check the email address and try again.";
+      if (error.code === 'auth/user-not-found') {
+        message = 'No user found with this email address.';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'Invalid email address.';
+      }
+      Alert.alert("Error", message);
     } finally {
       setIsLoading(false);
     }

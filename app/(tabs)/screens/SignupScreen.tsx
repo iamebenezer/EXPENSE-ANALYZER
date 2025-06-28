@@ -37,19 +37,23 @@ const SignupScreen = () => {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-
     setIsLoading(true);
     try {
-      const success = await signup(name, email, password);
-      if (success) {
+      const result = await signup(name, email, password);
+      if (result === true) {
         router.replace('/(tabs)');
       } else {
-        Alert.alert("Error", "Email already in use or registration failed");
+        let message = "Registration failed. Please try again.";
+        if (typeof result === 'string') {
+          if (result === 'auth/email-already-in-use') message = 'Email already in use.';
+          else if (result === 'auth/invalid-email') message = 'Invalid email address.';
+          else if (result === 'auth/weak-password') message = 'Password should be at least 6 characters.';
+        }
+        Alert.alert("Error", message);
         setIsLoading(false);
       }
     } catch (error) {

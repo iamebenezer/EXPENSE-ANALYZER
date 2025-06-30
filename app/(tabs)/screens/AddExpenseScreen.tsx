@@ -79,40 +79,6 @@ const AddExpenseScreen = () => {
     const expenseCategoryId = selectedCategoryId; // Already validated
 
     try {
-      // Check if there's an active budget for this category and date
-      const budgetsRef1 = collection(db, 'budgets');
-      const budgetQuery1 = query(
-        budgetsRef1,
-        where('userId', '==', user.uid),
-        where('categoryId', '==', expenseCategoryId),
-        where('startDate', '<=', expenseDate),
-        where('endDate', '>=', expenseDate)
-      );
-
-      const budgetSnapshot1 = await getDocs(budgetQuery1);
-
-      if (budgetSnapshot1.empty) {
-        // No active budget found for this category
-        Alert.alert(
-          'No Budget Found',
-          'You don\'t have an active budget for this category. Would you like to create one first?',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-              onPress: () => setIsLoading(false)
-            },
-            {
-              text: 'Create Budget',
-              onPress: () => {
-                setIsLoading(false);
-                router.push('/(tabs)/screens/AddBudgetScreen');
-              }
-            }
-          ]
-        );
-        return;
-      }
       // 1. Add the new expense
       const newExpenseData = {
         userId: user.uid,
@@ -127,44 +93,10 @@ const AddExpenseScreen = () => {
       // Firestore will resolve serverTimestamp() on the server.
       await addDoc(collection(db, 'expenses'), newExpenseData);
 
-      // 2. Update relevant budget(s)
-      const budgetsRef = collection(db, 'budgets');
-      const budgetQuery = query(
-        budgetsRef,
-        where('userId', '==', user.uid),
-        where('categoryId', '==', expenseCategoryId),
-        where('startDate', '<=', expenseDate), // Expense date must be on or after budget start
-        where('endDate', '>=', expenseDate)    // Expense date must be on or before budget end
-      );
-
-      const budgetSnapshot = await getDocs(budgetQuery);
-      const batch = writeBatch(db);
-      let budgetsFoundToUpdate = 0;
-
-      budgetSnapshot.forEach((budgetDoc) => {
-        budgetsFoundToUpdate++;
-        const budgetData = budgetDoc.data() as Budget;
-        const currentSpentAmount = budgetData.spentAmount || 0; // Default to 0 if undefined
-        const newSpentAmount = currentSpentAmount + expenseAmount;
-
-        const budgetDocRef = doc(db, 'budgets', budgetDoc.id);
-        batch.update(budgetDocRef, {
-          spentAmount: newSpentAmount,
-          updatedAt: serverTimestamp(),
-        });
-      });
-
-      if (budgetsFoundToUpdate > 0) {
-        await batch.commit();
-        console.log(`Successfully updated ${budgetsFoundToUpdate} budget(s).`);
-      } else {
-        console.log('No matching active budget found for this category and date to update.');
-      }
-
       Alert.alert('Success', 'Expense added successfully!');
       router.back();
     } catch (error) {
-      console.error('Error adding expense or updating budget:', error);
+      console.error('Error adding expense:', error);
       // Consider more specific error handling or logging here
       Alert.alert('Error', 'Failed to add expense. Please check connection or try again.');
     } finally {
@@ -174,8 +106,8 @@ const AddExpenseScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -214,16 +146,16 @@ const AddExpenseScreen = () => {
           <View style={styles.formElement}>
             <Text style={[styles.label, { color: theme.colors.textLight }]}>Category</Text>
             {isLoadingCategories ? (
-              <ActivityIndicator size="small" color={theme.colors.primary} style={{alignSelf: 'flex-start'}} />
+              <ActivityIndicator size="small" color={theme.colors.primary} style={{ alignSelf: 'flex-start' }} />
             ) : categoriesError ? (
               <View>
-                <Text style={{color: theme.colors.danger, marginBottom: 10}}>{categoriesError}</Text>
+                <Text style={{ color: theme.colors.danger, marginBottom: 10 }}>{categoriesError}</Text>
                 <TouchableOpacity onPress={retry} style={[styles.retryButton, { backgroundColor: theme.colors.primary }]}>
                   <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
               </View>
             ) : categories.length === 0 ? (
-              <Text style={{color: theme.colors.textLight}}>No categories available. Please add one first.</Text>
+              <Text style={{ color: theme.colors.textLight }}>No categories available. Please add one first.</Text>
             ) : (
               <View style={[styles.pickerContainer, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}>
                 <Picker

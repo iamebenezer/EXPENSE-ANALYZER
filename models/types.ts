@@ -39,7 +39,6 @@ export interface Category {
 export interface Budget {
   id?: string; // Optional: document ID
   userId: string;
-  categoryId: string;
   limitAmount: number;
   spentAmount: number;
   period: 'monthly' | 'weekly' | 'yearly' | 'custom'; // Budget period
@@ -57,7 +56,6 @@ export interface BudgetHistory {
   id?: string; // Optional: document ID
   budgetId: string; // Reference to the original budget
   userId: string;
-  categoryId: string;
   limitAmount: number;
   spentAmount: number;
   period: 'monthly' | 'weekly' | 'yearly' | 'custom';

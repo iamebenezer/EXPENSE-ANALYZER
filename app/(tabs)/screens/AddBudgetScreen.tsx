@@ -1,16 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, StyleSheet, Platform, ScrollView } from 'react-native'; 
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, StyleSheet, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme, Theme } from '../../../context/ThemeContext'; 
+import { useTheme, Theme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../context/AuthContext';
 import { Stack, useRouter } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
 import { db } from '../../../firebaseConfig';
 import { collection, query, where, getDocs, addDoc, serverTimestamp, Timestamp, or, doc, updateDoc, orderBy } from 'firebase/firestore';
-import { Category, Budget } from '../../../models/types'; 
-import DateTimePicker from '@react-native-community/datetimepicker'; 
+import { Budget } from '../../../models/types';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const getStyles = (theme: Theme) => StyleSheet.create({
   container: {
@@ -32,11 +31,11 @@ const getStyles = (theme: Theme) => StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 20,
-    justifyContent: 'center', 
+    justifyContent: 'center',
     borderColor: theme.colors.border,
   },
   picker: {
-    height: 50, 
+    height: 50,
     width: '100%',
     color: theme.colors.text,
   },
@@ -118,13 +117,11 @@ const getStyles = (theme: Theme) => StyleSheet.create({
 });
 
 const AddBudgetScreen = () => {
-  const { theme } = useTheme(); 
-  const styles = getStyles(theme); 
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
   const { user } = useAuth();
   const router = useRouter();
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [limitAmount, setLimitAmount] = useState<string>('');
   const [selectedPeriod, setSelectedPeriod] = useState<Budget['period']>('monthly');
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -132,61 +129,17 @@ const AddBudgetScreen = () => {
 
   // State for custom date pickers
   const [customStartDate, setCustomStartDate] = useState<Date>(new Date());
-  const [customEndDate, setCustomEndDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30))); 
+  const [customEndDate, setCustomEndDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  
+
   // State for custom date range presets
   const [selectedDatePreset, setSelectedDatePreset] = useState<string>('30days');
 
-  useEffect(() => {
-    if (!user) return;
+  // Remove: const [categories, setCategories] = useState<Category[]>([]);
+  // Remove: const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
 
-    const fetchCategories = async () => {
-      setIsLoadingCategories(true);
-      try {
-        const categoriesCollectionRef = collection(db, 'categories');
-        const q = query(
-          categoriesCollectionRef,
-          or(
-            where('isDefault', '==', true),
-            where('userId', '==', user.uid)
-          ),
-          orderBy('name', 'asc')
-        );
-
-        const querySnapshot = await getDocs(q);
-        const fetchedCategories: Category[] = [];
-        querySnapshot.forEach((doc) => {
-          fetchedCategories.push({ id: doc.id, ...doc.data() } as Category);
-        });
-
-        if (fetchedCategories.length > 0) {
-          setCategories(fetchedCategories);
-          setSelectedCategoryId(fetchedCategories[0].id);
-        } else {
-          Alert.alert(
-            "No Categories Found",
-            "Please add at least one category before creating a budget.",
-            [
-              {
-                text: "Add Category",
-                onPress: () => router.push('/(tabs)/screens/AddCategoryScreen')
-              },
-              { text: "Cancel", style: "cancel" }
-            ]
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching categories: ", error);
-        Alert.alert("Error", "Could not load categories.");
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, [user, router]);
+  // Remove all useEffect and logic for fetching categories
 
   // Function to apply date presets
   const applyDatePreset = (preset: string) => {
@@ -194,7 +147,7 @@ const AddBudgetScreen = () => {
     const today = new Date();
     let start = new Date();
     let end = new Date();
-    
+
     switch (preset) {
       case '7days':
         // Next 7 days
@@ -223,7 +176,7 @@ const AddBudgetScreen = () => {
         // Default to 30 days
         end = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     }
-    
+
     setCustomStartDate(start);
     setCustomEndDate(end);
   };
@@ -234,16 +187,16 @@ const AddBudgetScreen = () => {
     setCustomStartDate(currentDate);
     // Set to custom preset when user manually selects a date
     setSelectedDatePreset('custom');
-    
-    if (currentDate > customEndDate) { 
-      setCustomEndDate(new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)); 
+
+    if (currentDate > customEndDate) {
+      setCustomEndDate(new Date(currentDate.getTime() + 24 * 60 * 60 * 1000));
     }
   };
 
   const onEndDateChange = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || customEndDate;
     setShowEndDatePicker(Platform.OS === 'ios');
-    
+
     if (currentDate < customStartDate) {
       Alert.alert("Invalid Date", "End date cannot be before the start date.");
     } else {
@@ -252,7 +205,7 @@ const AddBudgetScreen = () => {
       setSelectedDatePreset('custom');
     }
   };
-  
+
   // Calculate the duration between start and end dates in days
   const calculateDuration = () => {
     const diffTime = Math.abs(customEndDate.getTime() - customStartDate.getTime());
@@ -263,10 +216,6 @@ const AddBudgetScreen = () => {
   const handleSaveBudget = async () => {
     if (!user) {
       Alert.alert("Error", "You must be logged in to add a budget.");
-      return;
-    }
-    if (!selectedCategoryId) {
-      Alert.alert("Validation Error", "Please select a category.");
       return;
     }
     const amount = parseFloat(limitAmount);
@@ -291,13 +240,13 @@ const AddBudgetScreen = () => {
         switch (selectedPeriod) {
           case 'weekly':
             startDate = new Date(now);
-            startDate.setDate(now.getDate() - now.getDay()); 
+            startDate.setDate(now.getDate() - now.getDay());
             endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + 6); 
+            endDate.setDate(startDate.getDate() + 6);
             break;
           case 'yearly':
-            startDate = new Date(now.getFullYear(), 0, 1); 
-            endDate = new Date(now.getFullYear(), 11, 31); 
+            startDate = new Date(now.getFullYear(), 0, 1);
+            endDate = new Date(now.getFullYear(), 11, 31);
             break;
           case 'monthly':
           default:
@@ -311,20 +260,19 @@ const AddBudgetScreen = () => {
       const budgetsRef = collection(db, 'budgets');
       const startTimestamp = Timestamp.fromDate(startDate);
       const endTimestamp = Timestamp.fromDate(endDate);
-      
-      console.log(`Checking for existing budgets: Category=${selectedCategoryId}, Period=${selectedPeriod}`);
+
+      console.log(`Checking for existing budgets: Period=${selectedPeriod}`);
       console.log(`Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
-      
-      // Query for budgets with the same category and overlapping date range
+
+      // Query for budgets with the same user and overlapping date range
       const q = query(
         budgetsRef,
-        where('userId', '==', user.uid),
-        where('categoryId', '==', selectedCategoryId)
+        where('userId', '==', user.uid)
       );
-      
+
       const querySnapshot = await getDocs(q);
       let overlappingBudgets: { id: string; data: any }[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const existingBudget = doc.data();
         const existingStart = existingBudget.startDate.toDate();
@@ -337,71 +285,70 @@ const AddBudgetScreen = () => {
           overlappingBudgets.push({ id: doc.id, data: existingBudget });
         }
       });
-      
-      console.log(`Found ${overlappingBudgets.length} overlapping budgets for this category`);
-      
+
+      console.log(`Found ${overlappingBudgets.length} overlapping budgets`);
+
       if (overlappingBudgets.length > 0) {
-         // If there's exactly one overlapping budget with the same period type, offer to update it
-         if (overlappingBudgets.length === 1 && overlappingBudgets[0].data.period === selectedPeriod) {
-           const existingBudget = overlappingBudgets[0];
-           
-           Alert.alert(
-             'Budget Already Exists',
-             `You already have a ${selectedPeriod} budget for this category during this time period. Would you like to update it instead?`,
-             [
-               { 
-                 text: 'Cancel', 
-                 style: 'cancel',
-                 onPress: () => setIsSaving(false)
-               },
-               {
-                 text: 'Update Existing',
-                 onPress: async () => {
-                   try {
-                     // Update the existing budget with the new amount
-                     const budgetDocRef = doc(db, 'budgets', existingBudget.id);
-                     await updateDoc(budgetDocRef, {
-                       limitAmount: parseFloat(amount),
-                       updatedAt: serverTimestamp()
-                     });
-                     
-                     Alert.alert('Success', 'Budget updated successfully!');
-                     router.back();
-                   } catch (error) {
-                     console.error('Error updating budget:', error);
-                     Alert.alert('Error', 'Failed to update budget. Please try again.');
-                   } finally {
-                     setIsSaving(false);
-                   }
-                 }
-               }
-             ]
-           );
-           return;
-         } else if (overlappingBudgets.length > 1) {
-           // Multiple overlapping budgets - more complex situation
-           Alert.alert(
-             'Multiple Overlapping Budgets',
-             'You have multiple budgets for this category that overlap with the selected date range. Please edit or delete existing budgets first.',
-             [{ text: 'OK' }]
-           );
-           setIsSaving(false);
-           return;
-         } else {
-           // One overlapping budget but with different period type
-           Alert.alert(
-             'Budget Period Conflict',
-             `You already have a ${overlappingBudgets[0].data.period} budget for this category that overlaps with your selected ${selectedPeriod} period. Please edit or delete the existing budget first.`,
-             [{ text: 'OK' }]
-           );
-           setIsSaving(false);
-           return;
-         }
-       }
+        // If there's exactly one overlapping budget with the same period type, offer to update it
+        if (overlappingBudgets.length === 1 && overlappingBudgets[0].data.period === selectedPeriod) {
+          const existingBudget = overlappingBudgets[0];
+
+          Alert.alert(
+            'Budget Already Exists',
+            `You already have a ${selectedPeriod} budget for this time period. Would you like to update it instead?`,
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => setIsSaving(false)
+              },
+              {
+                text: 'Update Existing',
+                onPress: async () => {
+                  try {
+                    // Update the existing budget with the new amount
+                    const budgetDocRef = doc(db, 'budgets', existingBudget.id);
+                    await updateDoc(budgetDocRef, {
+                      limitAmount: parseFloat(amount),
+                      updatedAt: serverTimestamp()
+                    });
+
+                    Alert.alert('Success', 'Budget updated successfully!');
+                    router.back();
+                  } catch (error) {
+                    console.error('Error updating budget:', error);
+                    Alert.alert('Error', 'Failed to update budget. Please try again.');
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }
+              }
+            ]
+          );
+          return;
+        } else if (overlappingBudgets.length > 1) {
+          // Multiple overlapping budgets - more complex situation
+          Alert.alert(
+            'Multiple Overlapping Budgets',
+            'You have multiple budgets that overlap with the selected date range. Please edit or delete existing budgets first.',
+            [{ text: 'OK' }]
+          );
+          setIsSaving(false);
+          return;
+        } else {
+          // One overlapping budget but with different period type
+          Alert.alert(
+            'Budget Period Conflict',
+            `You already have a ${overlappingBudgets[0].data.period} budget that overlaps with your selected ${selectedPeriod} period. Please edit or delete the existing budget first.`,
+            [{ text: 'OK' }]
+          );
+          setIsSaving(false);
+          return;
+        }
+      }
 
       const newBudget: Omit<Budget, 'id'> = {
         userId: user.uid,
-        categoryId: selectedCategoryId,
         limitAmount: amount,
         spentAmount: 0,
         period: selectedPeriod,
@@ -413,7 +360,7 @@ const AddBudgetScreen = () => {
 
       await addDoc(collection(db, 'budgets'), newBudget);
       Alert.alert("Success", "Budget added successfully!");
-      router.back(); 
+      router.back();
     } catch (error) {
       console.error("Error saving budget: ", error);
       Alert.alert("Error", "Could not save budget. Please try again.");
@@ -444,24 +391,6 @@ const AddBudgetScreen = () => {
         }}
       />
       <View style={styles.content}>
-        <Text style={styles.label}>Category</Text>
-        {categories.length > 0 ? (
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedCategoryId}
-              onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
-              style={styles.picker}
-              dropdownIconColor={theme.colors.text}
-            >
-              {categories.map((category) => (
-                <Picker.Item key={category.id} label={category.name} value={category.id!} />
-              ))}
-            </Picker>
-          </View>
-        ) : (
-          <Text style={{ color: theme.colors.textLight, marginVertical: 10 }}>No categories available. Please add categories first.</Text>
-        )}
-
         <Text style={styles.label}>Budget Period</Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -482,31 +411,31 @@ const AddBudgetScreen = () => {
             <Text style={styles.label}>Date Range Presets</Text>
             <View style={styles.presetContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '7days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('7days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '7days' && styles.presetButtonTextActive]}>7 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '14days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('14days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '14days' && styles.presetButtonTextActive]}>14 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '30days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('30days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '30days' && styles.presetButtonTextActive]}>30 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '3months' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('3months')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '3months' && styles.presetButtonTextActive]}>3 Months</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '6months' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('6months')}
                 >
@@ -514,11 +443,11 @@ const AddBudgetScreen = () => {
                 </TouchableOpacity>
               </ScrollView>
             </View>
-            
+
             <View style={styles.dateRangeSummary}>
               <Text style={styles.dateRangeDuration}>Duration: {calculateDuration()} days</Text>
             </View>
-            
+
             <Text style={styles.label}>Start Date</Text>
             <TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={styles.inputContainer}>
               <Text style={styles.dateText}>{customStartDate.toLocaleDateString()}</Text>
@@ -530,7 +459,7 @@ const AddBudgetScreen = () => {
                 mode="date"
                 display="default"
                 onChange={onStartDateChange}
-                minimumDate={new Date()} 
+                minimumDate={new Date()}
               />
             )}
 
@@ -545,7 +474,7 @@ const AddBudgetScreen = () => {
                 mode="date"
                 display="default"
                 onChange={onEndDateChange}
-                minimumDate={customStartDate} 
+                minimumDate={customStartDate}
               />
             )}
           </>

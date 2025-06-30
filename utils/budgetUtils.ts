@@ -32,26 +32,26 @@ export const calculateBudgetDateRange = (
         startDate = new Date(now);
         startDate.setDate(now.getDate() - now.getDay());
         startDate.setHours(0, 0, 0, 0);
-        
+
         // End on Saturday of current week
         endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 6);
         endDate.setHours(23, 59, 59, 999);
         break;
-        
+
       case 'yearly':
         // Start from January 1st of current year
         startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
-        
+
         // End on December 31st of current year
         endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
         break;
-        
+
       case 'monthly':
       default:
         // Start from 1st day of current month
         startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-        
+
         // End on last day of current month
         endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
         break;
@@ -82,32 +82,32 @@ export const calculateNextPeriodDateRange = (
       nextStartDate = new Date(currentEndDate);
       nextStartDate.setDate(nextStartDate.getDate() + 1);
       nextStartDate.setHours(0, 0, 0, 0);
-      
+
       // Next week ends 7 days after the start
       nextEndDate = new Date(nextStartDate);
       nextEndDate.setDate(nextStartDate.getDate() + 6);
       nextEndDate.setHours(23, 59, 59, 999);
       break;
-      
+
     case 'yearly':
       // Next year starts on January 1st of the next year
       nextStartDate = new Date(currentStartDate.getFullYear() + 1, 0, 1, 0, 0, 0, 0);
-      
+
       // Next year ends on December 31st of the next year
       nextEndDate = new Date(currentStartDate.getFullYear() + 1, 11, 31, 23, 59, 59, 999);
       break;
-      
+
     case 'monthly':
       // Next month starts on the 1st of the next month
       nextStartDate = new Date(currentStartDate);
       nextStartDate.setMonth(nextStartDate.getMonth() + 1);
       nextStartDate.setDate(1);
       nextStartDate.setHours(0, 0, 0, 0);
-      
+
       // Next month ends on the last day of the next month
       nextEndDate = new Date(nextStartDate.getFullYear(), nextStartDate.getMonth() + 1, 0, 23, 59, 59, 999);
       break;
-      
+
     case 'custom':
     default:
       // For custom periods, we can't automatically determine the next period
@@ -140,28 +140,27 @@ export const archiveBudgetAndCreateNext = async (budgetId: string, userId: strin
     // Get the current budget
     const budgetRef = doc(db, 'budgets', budgetId);
     const budgetSnap = await getDoc(budgetRef);
-    
+
     if (!budgetSnap.exists()) {
       console.error('Budget not found');
       return null;
     }
-    
+
     const currentBudget = { id: budgetSnap.id, ...budgetSnap.data() } as Budget;
-    
+
     // Only proceed if the budget period has ended
     if (!hasBudgetPeriodEnded(currentBudget)) {
       console.log('Budget period has not ended yet');
       return null;
     }
-    
+
     // Create a batch for atomic operations
     const batch = writeBatch(db);
-    
+
     // 1. Create a history record for the completed budget
     const historyData: Omit<BudgetHistory, 'id'> = {
       budgetId: currentBudget.id!,
       userId: currentBudget.userId,
-      categoryId: currentBudget.categoryId,
       limitAmount: currentBudget.limitAmount,
       spentAmount: currentBudget.spentAmount,
       period: currentBudget.period,
@@ -170,7 +169,7 @@ export const archiveBudgetAndCreateNext = async (budgetId: string, userId: strin
       createdAt: currentBudget.createdAt,
       completedAt: Timestamp.now(),
     };
-    
+
     // For non-custom periods, create a new budget for the next period
     if (currentBudget.period !== 'custom') {
       try {
@@ -180,11 +179,10 @@ export const archiveBudgetAndCreateNext = async (budgetId: string, userId: strin
           currentBudget.startDate.toDate(),
           currentBudget.endDate.toDate()
         );
-        
+
         // Create the new budget for the next period
         const newBudgetData: Omit<Budget, 'id'> = {
           userId: currentBudget.userId,
-          categoryId: currentBudget.categoryId,
           limitAmount: currentBudget.limitAmount, // Keep the same limit
           spentAmount: 0, // Reset spent amount
           period: currentBudget.period,
@@ -193,27 +191,27 @@ export const archiveBudgetAndCreateNext = async (budgetId: string, userId: strin
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           isActive: true,
-          previousPeriodIds: currentBudget.previousPeriodIds 
-            ? [...currentBudget.previousPeriodIds, currentBudget.id] 
+          previousPeriodIds: currentBudget.previousPeriodIds
+            ? [...currentBudget.previousPeriodIds, currentBudget.id]
             : [currentBudget.id],
         };
-        
+
         // Add the new budget document
         const newBudgetRef = await addDoc(collection(db, 'budgets'), newBudgetData);
-        
+
         // Update the current budget to reference the next period
-        batch.update(budgetRef, { 
+        batch.update(budgetRef, {
           isActive: false,
           nextPeriodId: newBudgetRef.id,
           updatedAt: serverTimestamp()
         });
-        
+
         // Add the history record
         await addDoc(collection(db, 'budgetHistory'), historyData);
-        
+
         // Commit the batch
         await batch.commit();
-        
+
         return newBudgetRef.id;
       } catch (error) {
         console.error('Error creating next budget period:', error);
@@ -221,17 +219,17 @@ export const archiveBudgetAndCreateNext = async (budgetId: string, userId: strin
       }
     } else {
       // For custom periods, just archive the current budget
-      batch.update(budgetRef, { 
+      batch.update(budgetRef, {
         isActive: false,
         updatedAt: serverTimestamp()
       });
-      
+
       // Add the history record
       await addDoc(collection(db, 'budgetHistory'), historyData);
-      
+
       // Commit the batch
       await batch.commit();
-      
+
       return null; // No new budget created for custom periods
     }
   } catch (error) {
@@ -255,27 +253,27 @@ export const checkAndUpdateExpiredBudgets = async (userId: string): Promise<stri
       where('userId', '==', userId),
       where('isActive', '==', true)
     );
-    
+
     const budgetsSnapshot = await getDocs(q);
     const expiredBudgets: Budget[] = [];
-    
+
     budgetsSnapshot.forEach(doc => {
       const budget = { id: doc.id, ...doc.data() } as Budget;
       if (hasBudgetPeriodEnded(budget)) {
         expiredBudgets.push(budget);
       }
     });
-    
+
     // Archive each expired budget and create new ones
     const newBudgetIds: string[] = [];
-    
+
     for (const budget of expiredBudgets) {
       const newBudgetId = await archiveBudgetAndCreateNext(budget.id!, userId);
       if (newBudgetId) {
         newBudgetIds.push(newBudgetId);
       }
     }
-    
+
     return newBudgetIds;
   } catch (error) {
     console.error('Error checking for expired budgets:', error);
@@ -294,31 +292,30 @@ export const getExpensesForBudget = async (budgetId: string, userId: string): Pr
     // Get the budget to determine the date range
     const budgetRef = doc(db, 'budgets', budgetId);
     const budgetSnap = await getDoc(budgetRef);
-    
+
     if (!budgetSnap.exists()) {
       console.error('Budget not found');
       return [];
     }
-    
+
     const budget = budgetSnap.data() as Budget;
-    
-    // Query expenses within the budget's date range and category
+
+    // Query expenses within the budget's date range
     const expensesRef = collection(db, 'expenses');
     const q = query(
       expensesRef,
       where('userId', '==', userId),
-      where('categoryId', '==', budget.categoryId),
       where('date', '>=', budget.startDate),
       where('date', '<=', budget.endDate)
     );
-    
+
     const expensesSnapshot = await getDocs(q);
     const expenses: Expense[] = [];
-    
+
     expensesSnapshot.forEach(doc => {
       expenses.push({ id: doc.id, ...doc.data() } as Expense);
     });
-    
+
     return expenses;
   } catch (error) {
     console.error('Error getting expenses for budget:', error);
@@ -337,19 +334,19 @@ export const getBudgetHistory = async (budgetId: string, userId: string): Promis
     // Get the current budget
     const budgetRef = doc(db, 'budgets', budgetId);
     const budgetSnap = await getDoc(budgetRef);
-    
+
     if (!budgetSnap.exists()) {
       console.error('Budget not found');
       return [];
     }
-    
+
     const budget = { id: budgetSnap.id, ...budgetSnap.data() } as Budget;
-    
+
     // If the budget has no previous periods, return an empty array
     if (!budget.previousPeriodIds || budget.previousPeriodIds.length === 0) {
       return [];
     }
-    
+
     // Get all history records for the previous periods
     const historyRef = collection(db, 'budgetHistory');
     const q = query(
@@ -357,17 +354,17 @@ export const getBudgetHistory = async (budgetId: string, userId: string): Promis
       where('userId', '==', userId),
       where('budgetId', 'in', budget.previousPeriodIds)
     );
-    
+
     const historySnapshot = await getDocs(q);
     const history: BudgetHistory[] = [];
-    
+
     historySnapshot.forEach(doc => {
       history.push({ id: doc.id, ...doc.data() } as BudgetHistory);
     });
-    
+
     // Sort by date (newest first)
     history.sort((a, b) => b.completedAt.toMillis() - a.completedAt.toMillis());
-    
+
     return history;
   } catch (error) {
     console.error('Error getting budget history:', error);
@@ -378,7 +375,6 @@ export const getBudgetHistory = async (budgetId: string, userId: string): Promis
 /**
  * Check if a budget overlaps with existing budgets
  * @param userId The user ID
- * @param categoryId The category ID
  * @param startDate The start date of the budget
  * @param endDate The end date of the budget
  * @param excludeBudgetId Optional budget ID to exclude from the check (for updates)
@@ -386,32 +382,30 @@ export const getBudgetHistory = async (budgetId: string, userId: string): Promis
  */
 export const checkBudgetOverlap = async (
   userId: string,
-  categoryId: string,
   startDate: Date,
   endDate: Date,
   excludeBudgetId?: string
 ): Promise<Budget[]> => {
   try {
-    // Query for budgets with the same category
+    // Query for budgets
     const budgetsRef = collection(db, 'budgets');
     const q = query(
       budgetsRef,
       where('userId', '==', userId),
-      where('categoryId', '==', categoryId),
       where('isActive', '==', true)
     );
-    
+
     const querySnapshot = await getDocs(q);
     const overlappingBudgets: Budget[] = [];
-    
+
     // Convert input dates to timestamps for comparison
     const startTimestamp = startDate.getTime();
     const endTimestamp = endDate.getTime();
-    
+
     querySnapshot.forEach((doc) => {
       // Skip the budget being updated
       if (excludeBudgetId && doc.id === excludeBudgetId) return;
-      
+
       const existingBudget = { id: doc.id, ...doc.data() } as Budget;
       const existingStart = existingBudget.startDate.toDate().getTime();
       const existingEnd = existingBudget.endDate.toDate().getTime();
@@ -421,7 +415,7 @@ export const checkBudgetOverlap = async (
         overlappingBudgets.push(existingBudget);
       }
     });
-    
+
     return overlappingBudgets;
   } catch (error) {
     console.error('Error checking budget overlap:', error);

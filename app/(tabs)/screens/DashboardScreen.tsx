@@ -91,7 +91,7 @@ const getRandomColor = (): string => {
     '#795548', // Brown
     '#607D8B', // Blue Grey
   ];
-  
+
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
@@ -103,8 +103,8 @@ const SimpleBarChart = ({ data }: { data: { x: string; y: number }[] }) => {
     return <Text style={{ color: theme.colors.textLight, textAlign: 'center', paddingVertical: 20 }}>No data for chart</Text>;
   }
 
-  const maxValue = Math.max(...data.map(d => d.y), 0); 
-  
+  const maxValue = Math.max(...data.map(d => d.y), 0);
+
   // Generate gradient colors based on values (higher values = more intense color)
   const getBarColor = (value: number, index: number) => {
     // Use a color gradient based on the day of week
@@ -125,13 +125,13 @@ const SimpleBarChart = ({ data }: { data: { x: string; y: number }[] }) => {
       {data.map((item, index) => {
         const percentage = maxValue > 0 ? (item.y / maxValue) * 100 : 0;
         const barColor = getBarColor(percentage, index);
-        
+
         return (
-          <Animatable.View 
-            key={index} 
-            animation="fadeInUp" 
-            duration={500} 
-            delay={index * 100} 
+          <Animatable.View
+            key={index}
+            animation="fadeInUp"
+            duration={500}
+            delay={index * 100}
             style={{ marginBottom: theme.spacing.md }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -140,20 +140,20 @@ const SimpleBarChart = ({ data }: { data: { x: string; y: number }[] }) => {
                 ₦{item.y.toLocaleString()}
               </Text>
             </View>
-            <View style={{ 
-              height: 14, 
-              backgroundColor: theme.themeMode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', 
+            <View style={{
+              height: 14,
+              backgroundColor: theme.themeMode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
               borderRadius: theme.borderRadius.sm,
               overflow: 'hidden',
               padding: 2,
             }}>
-              <Animatable.View 
-                animation="slideInLeft" 
-                duration={1000} 
+              <Animatable.View
+                animation="slideInLeft"
+                duration={1000}
                 delay={index * 100 + 300}
-                style={{ 
-                  width: `${percentage}%`, 
-                  height: '100%', 
+                style={{
+                  width: `${percentage}%`,
+                  height: '100%',
                   backgroundColor: barColor,
                   borderRadius: theme.borderRadius.xs,
                   shadowColor: barColor,
@@ -175,7 +175,7 @@ const SimpleBarChart = ({ data }: { data: { x: string; y: number }[] }) => {
 // Enhanced Component for rendering individual budget status with better visuals and animations
 const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budget, categoryName: string, theme: Theme, index: number }) => {
   const progress = budget.limitAmount > 0 ? (budget.spentAmount / budget.limitAmount) * 100 : 0;
-  const progressClamped = Math.min(Math.max(progress, 0), 100); 
+  const progressClamped = Math.min(Math.max(progress, 0), 100);
   const isOverBudget = budget.spentAmount > budget.limitAmount;
 
   // Calculate remaining amount and percentage
@@ -190,7 +190,7 @@ const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budg
     if (progressClamped > 60) return '#FFC107'; // Attention yellow
     return theme.colors.primary; // Good
   };
-  
+
   const statusColor = getStatusColor();
 
   // Get status text based on percentage
@@ -299,10 +299,10 @@ const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budg
   });
 
   return (
-    <Animatable.View 
-      animation="fadeInUp" 
-      duration={600} 
-      delay={index * 120} 
+    <Animatable.View
+      animation="fadeInUp"
+      duration={600}
+      delay={index * 120}
       style={itemStyles.budgetItem}
     >
       <View style={itemStyles.budgetHeader}>
@@ -311,11 +311,11 @@ const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budg
           <Text style={itemStyles.statusText}>{statusText}</Text>
         </View>
       </View>
-      
+
       <View style={itemStyles.budgetAmountsContainer}>
         <View>
           <Text style={itemStyles.budgetAmount}>{`Limit: ₦${budget.limitAmount.toLocaleString()}`}</Text>
-          <Text style={[itemStyles.budgetAmount, isOverBudget ? {color: theme.colors.error, fontWeight: '600'} : {}]}>
+          <Text style={[itemStyles.budgetAmount, isOverBudget ? { color: theme.colors.error, fontWeight: '600' } : {}]}>
             {`Spent: ₦${budget.spentAmount.toLocaleString()}`}
           </Text>
           {!isOverBudget ? (
@@ -328,14 +328,14 @@ const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budg
             </Text>
           )}
         </View>
-        
+
         {budget.startDate && budget.endDate && (
           <Text style={itemStyles.budgetDates}>
             {`${formatDate(budget.startDate.toDate())} - ${formatDate(budget.endDate.toDate())}`}
           </Text>
         )}
       </View>
-      
+
       <View style={itemStyles.progressBarContainer}>
         <View style={itemStyles.progressBarInfo}>
           <Text style={itemStyles.progressPercentage}>{`${progressClamped.toFixed(1)}% Used`}</Text>
@@ -346,13 +346,13 @@ const BudgetStatusItem = ({ budget, categoryName, theme, index }: { budget: Budg
           )}
         </View>
         <View style={itemStyles.progressBarBackground}>
-          <Animatable.View 
+          <Animatable.View
             animation="slideInLeft"
             duration={1000}
             delay={index * 150 + 200}
             style={[
               itemStyles.progressBarFill,
-              { 
+              {
                 width: `${progressClamped}%`,
                 backgroundColor: statusColor,
                 shadowColor: statusColor,
@@ -374,19 +374,19 @@ const DashboardScreen = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [expenses, setExpenses] = useState<ExtendedExpense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [totalBalance, setTotalBalance] = useState(0); // This might need recalculation based on actual income/expense logic
   const [recentTransactions, setRecentTransactions] = useState<ExtendedExpense[]>([]);
   const [expensesByCategory, setExpensesByCategory] = useState<DonutChartData[]>([]);
-  const [dailyExpenses, setDailyExpenses] = useState<{x: string, y: number}[]>([]);
-  const [monthlyExpenses, setMonthlyExpenses] = useState<{month: string, amount: number}[]>([]);
+  const [dailyExpenses, setDailyExpenses] = useState<{ x: string, y: number }[]>([]);
+  const [monthlyExpenses, setMonthlyExpenses] = useState<{ month: string, amount: number }[]>([]);
   const [notifications, setNotifications] = useState<Array<{
     id: string;
     categoryId: string;
@@ -397,25 +397,25 @@ const DashboardScreen = () => {
     timestamp: Date;
   }>>([]);
 
-  
+
   const fetchDashboardData = useCallback(async () => {
     if (!user) {
       setLoading(false);
       setRefreshing(false);
       return;
     }
-    
+
     try {
       setError(null);
       // setLoading(true); // Already handled by refreshing or initial load
-      
+
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoTimestamp = Timestamp.fromDate(sevenDaysAgo);
 
       // Fetch Expenses
       const expensesQuery = query(
-        collection(db, 'expenses'), 
+        collection(db, 'expenses'),
         where('userId', '==', user.uid),
         orderBy('date', 'desc')
       );
@@ -452,7 +452,7 @@ const DashboardScreen = () => {
         // Get budget date range
         const budgetStartDate = budget.startDate.toDate();
         const budgetEndDate = budget.endDate.toDate();
-        
+
         // Filter expenses that fall within this budget's date range and category
         const budgetExpenses = fetchedExpenses.filter(expense => {
           const expenseDate = expense.date.toDate();
@@ -462,38 +462,38 @@ const DashboardScreen = () => {
             expenseDate <= budgetEndDate
           );
         });
-        
+
         // Calculate total spent for this budget
         const spentAmount = budgetExpenses.reduce((total, expense) => total + expense.amount, 0);
-        
+
         // Log for debugging
         console.log(`Budget for ${fetchedCategories.find(c => c.id === budget.categoryId)?.name || 'Unknown'}:`);
         console.log(`- Date range: ${budgetStartDate.toLocaleDateString()} to ${budgetEndDate.toLocaleDateString()}`);
         console.log(`- Found ${budgetExpenses.length} matching expenses totaling ₦${spentAmount}`);
         console.log(`- Previous spent amount: ₦${budget.spentAmount}`);
-        
+
         // Return updated budget with calculated spent amount
         return {
           ...budget,
           spentAmount: spentAmount
         };
       });
-      
+
       // Update budgets state with the calculated spent amounts
       setBudgets(updatedBudgets);
-      
+
       // Generate budget notifications
       const budgetNotifications = getBudgetNotifications(updatedBudgets, fetchedCategories);
       setNotifications(budgetNotifications);
-      
+
       // Also update the expenses by category to match the budget calculations
       const categoryExpenseMap = new Map<string, number>();
-      
+
       // Initialize with all categories at 0
       fetchedCategories.forEach(category => {
         categoryExpenseMap.set(category.id!, 0);
       });
-      
+
       // Sum expenses by category ID (not name) for more accurate tracking
       fetchedExpenses.forEach(expense => {
         const categoryId = expense.categoryId;
@@ -501,7 +501,7 @@ const DashboardScreen = () => {
           categoryExpenseMap.set(categoryId, (categoryExpenseMap.get(categoryId) || 0) + expense.amount);
         }
       });
-      
+
       // Convert to the format needed for pie chart, using category names for display
       const pieChartData: DonutChartData[] = [];
       categoryExpenseMap.forEach((value, categoryId) => {
@@ -518,10 +518,10 @@ const DashboardScreen = () => {
           }
         }
       });
-      
+
       // Sort by value in descending order
       pieChartData.sort((a, b) => b.value - a.value);
-      
+
       setExpensesByCategory(pieChartData);
 
       // Process Data for UI
@@ -536,7 +536,7 @@ const DashboardScreen = () => {
         const canonicalDateStr = getCanonicalDateString(date);
         dailyMap.set(canonicalDateStr, 0);
       });
-      
+
       const firstDayOfChart = last7DaysDates[0]; // Oldest date in the 7-day range (midnight)
 
       fetchedExpenses
@@ -562,7 +562,7 @@ const DashboardScreen = () => {
         y: dailyMap.get(getCanonicalDateString(date)) || 0,
       }));
       setDailyExpenses(barChartData);
-      
+
       // Monthly Expenses (Last 6 Months for Line Chart)
       const { labels: last6MonthLabels, yearMonthKeys: last6YearMonthKeys } = getPast6MonthsInfo();
       const monthlyMap = new Map<string, number>(); // Key: 'YYYY-MM'
@@ -571,8 +571,8 @@ const DashboardScreen = () => {
       const firstMonthToFetch = new Date();
       // Ensure we are at the start of the month that is 5 months ago (to make a 6-month window including current)
       firstMonthToFetch.setMonth(firstMonthToFetch.getMonth() - 5);
-      firstMonthToFetch.setDate(1); 
-      firstMonthToFetch.setHours(0, 0, 0, 0); 
+      firstMonthToFetch.setDate(1);
+      firstMonthToFetch.setHours(0, 0, 0, 0);
       const firstMonthToFetchTimestamp = Timestamp.fromDate(firstMonthToFetch);
 
       fetchedExpenses
@@ -584,7 +584,7 @@ const DashboardScreen = () => {
             monthlyMap.set(expenseYearMonthKey, (monthlyMap.get(expenseYearMonthKey) || 0) + expense.amount);
           }
         });
-      
+
       const monthlyData = last6YearMonthKeys.map((yearMonthKey, index) => ({
         month: last6MonthLabels[index], // Use the short month name for display
         amount: monthlyMap.get(yearMonthKey) || 0,
@@ -595,7 +595,7 @@ const DashboardScreen = () => {
       // For now, this is a placeholder. A real balance would involve income.
       const totalSpent = fetchedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
       setTotalBalance(-totalSpent); // Displaying as negative as it's total expenses
-      
+
       // Budget notifications are already generated earlier in the function
 
     } catch (err: any) {
@@ -634,8 +634,8 @@ const DashboardScreen = () => {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: theme.spacing.lg }]}>
         <Ionicons name="alert-circle-outline" size={48} color={theme.colors.error} />
-        <Text style={[styles.errorText, {color: theme.colors.error}]}>Oops! Something went wrong.</Text>
-        <Text style={[styles.errorDetailText, {color: theme.colors.textLight}]}>{error}</Text>
+        <Text style={[styles.errorText, { color: theme.colors.error }]}>Oops! Something went wrong.</Text>
+        <Text style={[styles.errorDetailText, { color: theme.colors.textLight }]}>{error}</Text>
         <TouchableOpacity onPress={fetchDashboardData} style={styles.retryButton}>
           <Text style={styles.retryButtonText}>Try Again</Text>
         </TouchableOpacity>
@@ -659,10 +659,10 @@ const DashboardScreen = () => {
           </Animatable.View>
           <Animatable.View animation="fadeInRight" duration={800} delay={300} style={styles.headerActions}>
             {/* Notification Button with Badge */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
               onPress={() => router.push('/(tabs)/screens/NotificationsScreen')}
-            > 
+            >
               <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
               {notifications.length > 0 && (
                 <View style={styles.notificationBadge}>
@@ -670,12 +670,12 @@ const DashboardScreen = () => {
                 </View>
               )}
             </TouchableOpacity>
-            
+
             {/* Profile Button */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
               onPress={() => router.push('/(tabs)/screens/ProfileScreen')}
-            > 
+            >
               <Ionicons name="person-circle-outline" size={24} color={theme.colors.text} />
             </TouchableOpacity>
           </Animatable.View>
@@ -712,15 +712,15 @@ const DashboardScreen = () => {
         {/* Expenses by Category Pie Chart */}
         {expensesByCategory.length > 0 ? (
           <Animatable.View animation="fadeInUp" duration={600} delay={300} style={styles.chartCard}>
-            <Text style={styles.cardTitle}>Expenses by Category</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Expenses by Category</Text>
             <View style={{ alignItems: 'center' }}>
               <PieChart
-                data={expensesByCategory.map(item => ({ 
-                  name: item.label, 
-                  population: item.value, 
-                  color: item.color, 
-                  legendFontColor: theme.colors.text, 
-                  legendFontSize: theme.fontSizes.xs 
+                data={expensesByCategory.map(item => ({
+                  name: item.label,
+                  population: item.value,
+                  color: item.color,
+                  legendFontColor: theme.colors.text,
+                  legendFontSize: theme.fontSizes.xs
                 }))}
                 width={Dimensions.get('window').width - theme.spacing.md * 4}
                 height={180}
@@ -750,7 +750,7 @@ const DashboardScreen = () => {
                   borderRadius: theme.borderRadius.md,
                 }}
               />
-              
+
               {/* Add total amount below chart */}
               <View style={styles.totalExpenseContainer}>
                 <Text style={styles.totalExpenseLabel}>Total Expenses</Text>
@@ -762,30 +762,30 @@ const DashboardScreen = () => {
           </Animatable.View>
         ) : (
           <Animatable.View animation="fadeInUp" duration={600} delay={300} style={styles.chartCardEmpty}>
-            <Text style={styles.cardTitle}>Expenses by Category</Text>
-            <Ionicons name="pie-chart-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md}} />
-            <Text style={{color: theme.colors.textLight}}>No expense data for chart.</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Expenses by Category</Text>
+            <Ionicons name="pie-chart-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md }} />
+            <Text style={{ color: theme.colors.textLight }}>No expense data for chart.</Text>
           </Animatable.View>
         )}
 
         {/* Daily Expenses Bar Chart */}
         {dailyExpenses.length > 0 ? (
           <Animatable.View animation="fadeInUp" duration={600} delay={400} style={styles.chartCard}>
-            <Text style={styles.cardTitle}>Daily Expenses (Last 7 Days)</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Daily Expenses (Last 7 Days)</Text>
             <SimpleBarChart data={dailyExpenses} />
           </Animatable.View>
         ) : (
           <Animatable.View animation="fadeInUp" duration={600} delay={400} style={styles.chartCardEmpty}>
-            <Text style={styles.cardTitle}>Daily Expenses (Last 7 Days)</Text>
-            <Ionicons name="bar-chart-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md}} />
-            <Text style={{color: theme.colors.textLight}}>No daily expense data.</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Daily Expenses (Last 7 Days)</Text>
+            <Ionicons name="bar-chart-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md }} />
+            <Text style={{ color: theme.colors.textLight }}>No daily expense data.</Text>
           </Animatable.View>
         )}
-        
+
         {/* Monthly Expense Trend Line Chart */}
         {monthlyExpenses.length > 0 && monthlyExpenses.some(item => item.amount > 0) ? (
           <Animatable.View animation="fadeInUp" duration={600} delay={450} style={styles.chartCard}>
-            <Text style={styles.cardTitle}>Monthly Expense Trend</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Monthly Expense Trend</Text>
             <LineChart
               data={{
                 labels: monthlyExpenses.map(item => item.month),
@@ -828,16 +828,16 @@ const DashboardScreen = () => {
           </Animatable.View>
         ) : (
           <Animatable.View animation="fadeInUp" duration={600} delay={450} style={styles.chartCardEmpty}>
-            <Text style={styles.cardTitle}>Monthly Expense Trend</Text>
-            <Ionicons name="trending-up-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md}} />
-            <Text style={{color: theme.colors.textLight}}>No monthly expense data available.</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Monthly Expense Trend</Text>
+            <Ionicons name="trending-up-outline" size={40} color={theme.colors.textLight} style={{ marginVertical: theme.spacing.md }} />
+            <Text style={{ color: theme.colors.textLight }}>No monthly expense data available.</Text>
           </Animatable.View>
         )}
 
         {/* Recent Transactions */}
         {recentTransactions.length > 0 && (
           <Animatable.View animation="fadeInUp" duration={600} delay={500} style={styles.listCard}>
-            <Text style={styles.cardTitle}>Recent Transactions</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Recent Transactions</Text>
             {recentTransactions.map((item, index) => {
               const category = categories.find(c => c.id === item.categoryId);
               return (
@@ -861,15 +861,15 @@ const DashboardScreen = () => {
         {/* Budget Status */}
         {budgets.length > 0 && (
           <Animatable.View animation="fadeInUp" duration={600} delay={600} style={styles.listCard}>
-            <Text style={styles.cardTitle}>Budget Status</Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Budget Status</Text>
             {budgets.map((budget, index) => {
               const category = categories.find(c => c.id === budget.categoryId);
               return (
-                <BudgetStatusItem 
-                  key={budget.id} 
-                  budget={budget} 
-                  categoryName={category?.name || 'Unknown Category'} 
-                  theme={theme} 
+                <BudgetStatusItem
+                  key={budget.id}
+                  budget={budget}
+                  categoryName={category?.name || 'Unknown Category'}
+                  theme={theme}
                   index={index}
                 />
               );

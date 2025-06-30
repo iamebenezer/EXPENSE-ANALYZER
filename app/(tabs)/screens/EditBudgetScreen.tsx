@@ -6,10 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, Theme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../context/AuthContext';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
 import { db } from '../../../firebaseConfig';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp, Timestamp, or, deleteDoc } from 'firebase/firestore';
-import { Category, Budget } from '../../../models/types';
+import { Budget } from '../../../models/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const getStyles = (theme: Theme) => StyleSheet.create({
@@ -138,8 +137,6 @@ const EditBudgetScreen = () => {
   const router = useRouter();
   const { budgetId } = useLocalSearchParams<{ budgetId: string }>();
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [limitAmount, setLimitAmount] = useState<string>('');
   const [selectedPeriod, setSelectedPeriod] = useState<Budget['period']>('monthly');
   const [originalBudget, setOriginalBudget] = useState<Budget | null>(null);
@@ -149,7 +146,7 @@ const EditBudgetScreen = () => {
   const [customEndDate, setCustomEndDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  
+
   // State for custom date range presets
   const [selectedDatePreset, setSelectedDatePreset] = useState<string>('30days');
 
@@ -167,19 +164,6 @@ const EditBudgetScreen = () => {
     const fetchData = async () => {
       setIsLoadingData(true);
       try {
-        // Fetch categories
-        const categoriesCollectionRef = collection(db, 'categories');
-        const catQuery = query(
-          categoriesCollectionRef,
-          or(where('isDefault', '==', true), where('userId', '==', user.uid))
-        );
-        const categoriesSnapshot = await getDocs(catQuery);
-        const fetchedCategories: Category[] = [];
-        categoriesSnapshot.forEach((doc) => {
-          fetchedCategories.push({ id: doc.id, ...doc.data() } as Category);
-        });
-        setCategories(fetchedCategories);
-
         // Fetch the specific budget
         const budgetDocRef = doc(db, 'budgets', budgetId);
         const budgetDocSnap = await getDoc(budgetDocRef);
@@ -192,7 +176,6 @@ const EditBudgetScreen = () => {
             return;
           }
           setOriginalBudget(budgetData);
-          setSelectedCategoryId(budgetData.categoryId);
           setLimitAmount(budgetData.limitAmount.toString());
           setSelectedPeriod(budgetData.period);
 
@@ -202,11 +185,11 @@ const EditBudgetScreen = () => {
             const endDate = budgetData.endDate.toDate();
             setCustomStartDate(startDate);
             setCustomEndDate(endDate);
-            
+
             // Determine which preset matches the date range, if any
             const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays === 7) {
               setSelectedDatePreset('7days');
             } else if (diffDays === 14) {
@@ -249,7 +232,7 @@ const EditBudgetScreen = () => {
     const today = new Date();
     let start = new Date();
     let end = new Date();
-    
+
     switch (preset) {
       case '7days':
         // Next 7 days
@@ -278,7 +261,7 @@ const EditBudgetScreen = () => {
         // Default to 30 days
         end = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     }
-    
+
     setCustomStartDate(start);
     setCustomEndDate(end);
   };
@@ -289,16 +272,16 @@ const EditBudgetScreen = () => {
     setCustomStartDate(currentDate);
     // Set to custom preset when user manually selects a date
     setSelectedDatePreset('custom');
-    
-    if (currentDate > customEndDate) { 
-      setCustomEndDate(new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)); 
+
+    if (currentDate > customEndDate) {
+      setCustomEndDate(new Date(currentDate.getTime() + 24 * 60 * 60 * 1000));
     }
   };
 
   const onEndDateChange = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || customEndDate;
     setShowEndDatePicker(Platform.OS === 'ios');
-    
+
     if (currentDate < customStartDate) {
       Alert.alert("Invalid Date", "End date cannot be before the start date.");
     } else {
@@ -307,7 +290,7 @@ const EditBudgetScreen = () => {
       setSelectedDatePreset('custom');
     }
   };
-  
+
   // Calculate the duration between start and end dates in days
   const calculateDuration = () => {
     const diffTime = Math.abs(customEndDate.getTime() - customStartDate.getTime());
@@ -320,10 +303,6 @@ const EditBudgetScreen = () => {
       Alert.alert("Error", "Missing required data to update budget.");
       return;
     }
-    if (!selectedCategoryId) {
-      Alert.alert("Validation Error", "Please select a category.");
-      return;
-    }
     const amount = parseFloat(limitAmount);
     if (isNaN(amount) || amount <= 0) {
       Alert.alert("Validation Error", "Please enter a valid budget amount greater than 0.");
@@ -333,7 +312,7 @@ const EditBudgetScreen = () => {
     setIsSaving(true);
     try {
       const budgetDocRef = doc(db, 'budgets', budgetId);
-      
+
       let finalStartDate: Date;
       let finalEndDate: Date;
       const now = new Date();
@@ -360,7 +339,7 @@ const EditBudgetScreen = () => {
             break;
         }
       }
-      
+
       // Check for overlapping budgets (excluding the current budget being edited)
       const budgetsRef = collection(db, 'budgets');
       const q = query(
@@ -377,7 +356,7 @@ const EditBudgetScreen = () => {
       querySnapshot.forEach((doc) => {
         // Skip the current budget being edited
         if (doc.id === budgetId) return;
-        
+
         const existingBudget = doc.data();
         const existingStart = existingBudget.startDate.toDate();
         const existingEnd = existingBudget.endDate.toDate();
@@ -401,7 +380,6 @@ const EditBudgetScreen = () => {
       }
 
       const updatedBudgetData: Partial<Budget> = {
-        categoryId: selectedCategoryId,
         limitAmount: amount,
         period: selectedPeriod,
         startDate: Timestamp.fromDate(finalStartDate),
@@ -467,7 +445,7 @@ const EditBudgetScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Edit Budget',
           headerBackTitle: 'Back',
@@ -479,25 +457,6 @@ const EditBudgetScreen = () => {
         }}
       />
       <View style={styles.content}>
-        <Text style={styles.label}>Category</Text>
-        {categories.length > 0 ? (
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedCategoryId}
-              onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
-              style={styles.picker}
-              dropdownIconColor={theme.colors.text}
-              enabled={!isSaving}
-            >
-              {categories.map((category) => (
-                <Picker.Item key={category.id} label={category.name} value={category.id!} />
-              ))}
-            </Picker>
-          </View>
-        ) : (
-          <Text style={{ color: theme.colors.textLight, marginVertical: 10 }}>Loading categories or none available.</Text>
-        )}
-
         <Text style={styles.label}>Budget Period</Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -519,31 +478,31 @@ const EditBudgetScreen = () => {
             <Text style={styles.label}>Date Range Presets</Text>
             <View style={styles.presetContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '7days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('7days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '7days' && styles.presetButtonTextActive]}>7 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '14days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('14days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '14days' && styles.presetButtonTextActive]}>14 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '30days' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('30days')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '30days' && styles.presetButtonTextActive]}>30 Days</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '3months' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('3months')}
                 >
                   <Text style={[styles.presetButtonText, selectedDatePreset === '3months' && styles.presetButtonTextActive]}>3 Months</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.presetButton, selectedDatePreset === '6months' && styles.presetButtonActive]}
                   onPress={() => applyDatePreset('6months')}
                 >
@@ -551,11 +510,11 @@ const EditBudgetScreen = () => {
                 </TouchableOpacity>
               </ScrollView>
             </View>
-            
+
             <View style={styles.dateRangeSummary}>
               <Text style={styles.dateRangeDuration}>Duration: {calculateDuration()} days</Text>
             </View>
-            
+
             <Text style={styles.label}>Start Date</Text>
             <TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={styles.inputContainer}>
               <Text style={styles.dateText}>{customStartDate.toLocaleDateString()}</Text>

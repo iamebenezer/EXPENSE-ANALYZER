@@ -86,20 +86,20 @@ const ExpensesScreen = () => {
               // First, get the expense details to update associated budgets
               const expenseDocRef = doc(db, 'expenses', expenseId);
               const expenseSnap = await getDoc(expenseDocRef);
-              
+
               if (!expenseSnap.exists()) {
                 Alert.alert('Error', 'Expense not found.');
                 return;
               }
-              
+
               const expenseData = expenseSnap.data() as Expense;
-              
+
               // Start a batch write for consistency
               const batch = writeBatch(db);
-              
+
               // 1. Delete the expense document
               batch.delete(expenseDocRef);
-              
+
               // 2. Update any associated budgets
               const budgetsRef = collection(db, 'budgets');
               const budgetQuery = query(
@@ -109,28 +109,28 @@ const ExpensesScreen = () => {
                 where('startDate', '<=', expenseData.date),
                 where('endDate', '>=', expenseData.date)
               );
-              
+
               const budgetSnapshot = await getDocs(budgetQuery);
               let budgetsUpdated = 0;
-              
+
               budgetSnapshot.forEach((budgetDoc) => {
                 budgetsUpdated++;
                 const budgetData = budgetDoc.data() as Budget;
                 const currentSpentAmount = budgetData.spentAmount || 0;
                 const newSpentAmount = Math.max(0, currentSpentAmount - expenseData.amount);
-                
+
                 batch.update(doc(db, 'budgets', budgetDoc.id), {
                   spentAmount: newSpentAmount,
                   updatedAt: serverTimestamp(),
                 });
               });
-              
+
               // Commit all changes atomically
               await batch.commit();
-              
+
               // Update the UI
               setExpenses((prevExpenses) => prevExpenses.filter((exp) => exp.id !== expenseId));
-              
+
               if (budgetsUpdated > 0) {
                 Alert.alert('Success', `Expense deleted and ${budgetsUpdated} budget(s) updated.`);
               } else {
@@ -148,7 +148,7 @@ const ExpensesScreen = () => {
   };
 
   const renderExpenseItem = ({ item }: { item: Expense }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.expenseItem, { backgroundColor: theme.colors.card }]}
       onPress={() => router.push({ pathname: '/(tabs)/screens/EditExpenseScreen', params: { expenseId: item.id } })}
     >
@@ -162,7 +162,7 @@ const ExpensesScreen = () => {
       </View>
       <View style={styles.amountAndDeleteContainer}>
         <Text style={[styles.expenseAmount, { color: theme.colors.primary }]}>
-          ${item.amount.toFixed(2)}
+          ₦{item.amount.toFixed(2)}
         </Text>
         <TouchableOpacity onPress={() => handleDeleteExpense(item.id!)} style={styles.deleteButton}>
           <Ionicons name="trash-outline" size={22} color={theme.colors.danger} />
@@ -192,7 +192,7 @@ const ExpensesScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'My Expenses',
           headerStyle: {
@@ -201,8 +201,8 @@ const ExpensesScreen = () => {
           headerTintColor: theme.colors.text,
           headerShadowVisible: false,
           headerRight: () => (
-            <TouchableOpacity 
-              style={[styles.addButton, { backgroundColor: theme.colors.primary }]} 
+            <TouchableOpacity
+              style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => router.push('/(tabs)/screens/AddExpenseScreen')}
             >
               <Ionicons name="add" size={24} color="white" />

@@ -23,8 +23,6 @@ import { checkAndUpdateExpiredBudgets, getBudgetHistory, getExpensesForBudget } 
 import { Budget, Category, BudgetHistory, Expense, BudgetWithCategory } from "../../../models/types";
 
 interface BudgetDisplayItem extends Budget {
-  categoryName: string;
-  categoryIcon?: string;
   status?: 'normal' | 'warning' | 'high-warning' | 'danger' | 'exceeded';
   statusMessage?: string;
   history?: BudgetHistory[];
@@ -41,14 +39,13 @@ const BudgetScreen = () => {
 
   const [budgets, setBudgets] = useState<BudgetDisplayItem[]>([]);
   const [filteredBudgets, setFilteredBudgets] = useState<BudgetDisplayItem[]>([]);
-  const [categoriesMap, setCategoriesMap] = useState<Map<string, Category>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingExpired, setIsCheckingExpired] = useState(false);
-  
+
   // Filtering states
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
-  
+
   // Modal states
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -62,7 +59,6 @@ const BudgetScreen = () => {
       setIsLoading(false);
       setBudgets([]);
       setFilteredBudgets([]);
-      setCategoriesMap(new Map());
       return;
     }
 
@@ -72,44 +68,27 @@ const BudgetScreen = () => {
       setIsCheckingExpired(true);
       await checkAndUpdateExpiredBudgets(user.uid);
       setIsCheckingExpired(false);
-      
-      // Fetch categories
-      const categoriesCollectionRef = collection(db, 'categories');
-      const catQuery = query(
-        categoriesCollectionRef,
-        or(where('isDefault', '==', true), where('userId', '==', user.uid))
-      );
-      const categoriesSnapshot = await getDocs(catQuery);
-      const fetchedCategoriesMap = new Map<string, Category>();
-      categoriesSnapshot.forEach(doc => {
-        fetchedCategoriesMap.set(doc.id, { id: doc.id, ...doc.data() } as Category);
-      });
-      setCategoriesMap(fetchedCategoriesMap);
 
       // Fetch budgets
       const budgetsCollectionRef = collection(db, 'budgets');
       const budgetQuery = query(budgetsCollectionRef, where('userId', '==', user.uid));
       const budgetsSnapshot = await getDocs(budgetQuery);
-      
+
       const fetchedBudgets: BudgetDisplayItem[] = [];
       budgetsSnapshot.forEach(doc => {
         const budgetData = { id: doc.id, ...doc.data() } as Budget;
-        const category = fetchedCategoriesMap.get(budgetData.categoryId);
-        const categoryName = category?.name || 'Uncategorized';
-        
+
         // Check budget status using the utility function
-        const { status, message } = checkBudgetStatus(budgetData, categoryName);
-        
+        const { status, message } = checkBudgetStatus(budgetData);
+
         fetchedBudgets.push({
           ...budgetData,
-          categoryName,
-          categoryIcon: category?.icon,
           status,
           statusMessage: message
         });
       });
       setBudgets(fetchedBudgets);
-      
+
       // Apply filters
       applyFilters(fetchedBudgets);
 
@@ -120,16 +99,16 @@ const BudgetScreen = () => {
       setIsLoading(false);
     }
   }, [user, periodFilter, statusFilter]);
-  
+
   // Function to apply filters to budgets
   const applyFilters = useCallback((budgetsToFilter: BudgetDisplayItem[]) => {
     let filtered = [...budgetsToFilter];
-    
+
     // Apply period filter
     if (periodFilter !== 'all') {
       filtered = filtered.filter(budget => budget.period === periodFilter);
     }
-    
+
     // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(budget => {
@@ -141,10 +120,10 @@ const BudgetScreen = () => {
         return true;
       });
     }
-    
+
     setFilteredBudgets(filtered);
   }, [periodFilter, statusFilter]);
-  
+
   // Apply filters when budgets or filters change
   useEffect(() => {
     applyFilters(budgets);
@@ -160,16 +139,16 @@ const BudgetScreen = () => {
   const viewBudgetHistory = async (budget: BudgetDisplayItem) => {
     setSelectedBudget(budget);
     setIsLoadingHistory(true);
-    
+
     try {
       // Fetch budget history
       const history = await getBudgetHistory(budget.id);
       setBudgetHistory(history);
-      
+
       // Fetch expenses for this budget
       const expenses = await getExpensesForBudget(budget.id);
       setBudgetExpenses(expenses);
-      
+
       // Show history modal
       setShowHistoryModal(true);
     } catch (error) {
@@ -179,7 +158,7 @@ const BudgetScreen = () => {
       setIsLoadingHistory(false);
     }
   };
-  
+
   const formatTimestamp = (timestamp: Timestamp | undefined) => {
     if (!timestamp) return '';
     return timestamp.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -188,7 +167,7 @@ const BudgetScreen = () => {
   const renderBudgetItem = (budget: BudgetDisplayItem) => {
     const percentage = budget.limitAmount > 0 ? (budget.spentAmount / budget.limitAmount) * 100 : 0;
     const isOverBudget = percentage > 100;
-    
+
     // Determine progress bar color based on budget status
     let progressColor = theme.colors.primary;
     if (budget.status === 'warning') {
@@ -203,41 +182,17 @@ const BudgetScreen = () => {
 
     const periodText = budget.period.charAt(0).toUpperCase() + budget.period.slice(1);
     const dateRangeText = `${formatTimestamp(budget.startDate)} - ${formatTimestamp(budget.endDate)}`;
-    
+
     // Check if budget is active or completed
     const isActive = budget.isActive !== false; // undefined or true means active
 
     return (
       <View style={[styles.budgetItem, { backgroundColor: theme.colors.card }]}>
         <View style={styles.budgetHeader}>
-          <View style={styles.categoryContainer}>
-            <View
-              style={[
-                styles.categoryIcon,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            >
-              <Ionicons
-                name={(budget.categoryIcon as any) || "wallet-outline"}
-                size={20}
-                color="white"
-              />
-            </View>
-            <View>
-              <Text style={[styles.categoryName, { color: theme.colors.text }]}>
-                {budget.categoryName}
-              </Text>
-              {!isActive && (
-                <Text style={[styles.completedBadge, { color: theme.colors.textLight }]}>
-                  Completed
-                </Text>
-              )}
-            </View>
-          </View>
           <View style={styles.budgetActions}>
             {budget.previousPeriodIds && budget.previousPeriodIds.length > 0 && (
-              <TouchableOpacity 
-                style={styles.historyButton} 
+              <TouchableOpacity
+                style={styles.historyButton}
                 onPress={() => viewBudgetHistory(budget)}
               >
                 <Ionicons
@@ -247,7 +202,7 @@ const BudgetScreen = () => {
                 />
               </TouchableOpacity>
             )}
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => router.push({ pathname: '/screens/EditBudgetScreen', params: { budgetId: budget.id } })}
             >
               <Ionicons
@@ -312,9 +267,9 @@ const BudgetScreen = () => {
             {budget.statusMessage}
           </Text>
         )}
-        
+
         {budget.nextPeriodId && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.nextPeriodButton, { borderColor: theme.colors.primary }]}
             onPress={() => router.push({ pathname: '/screens/EditBudgetScreen', params: { budgetId: budget.nextPeriodId } })}
           >
@@ -336,9 +291,9 @@ const BudgetScreen = () => {
     const currentTotalSpent = filteredBudgets.reduce((sum, budget) => sum + budget.spentAmount, 0);
     const currentTotalPercentage = currentTotalBudget > 0 ? (currentTotalSpent / currentTotalBudget) * 100 : 0;
     return {
-        totalBudget: currentTotalBudget,
-        totalSpent: currentTotalSpent,
-        totalPercentage: currentTotalPercentage
+      totalBudget: currentTotalBudget,
+      totalSpent: currentTotalSpent,
+      totalPercentage: currentTotalPercentage
     }
   }, [filteredBudgets]);
 
@@ -346,13 +301,13 @@ const BudgetScreen = () => {
   const toggleFilterModal = () => {
     setShowFilterModal(!showFilterModal);
   };
-  
+
   // Function to apply selected filters
   const applySelectedFilters = () => {
     applyFilters(budgets);
     setShowFilterModal(false);
   };
-  
+
   // Function to reset filters
   const resetFilters = () => {
     setPeriodFilter('all');
@@ -360,7 +315,7 @@ const BudgetScreen = () => {
     applyFilters(budgets);
     setShowFilterModal(false);
   };
-  
+
   // Render history item
   const renderHistoryItem = ({ item }: { item: BudgetHistory }) => {
     return (
@@ -374,8 +329,8 @@ const BudgetScreen = () => {
           <Text style={[styles.historyAmount, { color: theme.colors.text }]}>
             ₦{item.spentAmount.toLocaleString()} / ₦{item.limitAmount.toLocaleString()}
           </Text>
-          <Text style={[styles.historyPercentage, { 
-            color: item.spentAmount > item.limitAmount ? theme.colors.error : theme.colors.success 
+          <Text style={[styles.historyPercentage, {
+            color: item.spentAmount > item.limitAmount ? theme.colors.error : theme.colors.success
           }]}>
             {item.limitAmount > 0 ? ((item.spentAmount / item.limitAmount) * 100).toFixed(0) : 0}%
           </Text>
@@ -383,13 +338,13 @@ const BudgetScreen = () => {
       </View>
     );
   };
-  
+
   if (isLoading) {
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center'}]}>
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={{color: theme.colors.text, marginTop: 10}}>Loading budgets...</Text>
-        </SafeAreaView>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={{ color: theme.colors.text, marginTop: 10 }}>Loading budgets...</Text>
+      </SafeAreaView>
     )
   }
 
@@ -397,7 +352,7 @@ const BudgetScreen = () => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Budgets',
           headerStyle: {
@@ -407,7 +362,7 @@ const BudgetScreen = () => {
           headerShadowVisible: false,
           headerRight: () => (
             <TouchableOpacity
-              style={[styles.filterButton, { backgroundColor: theme.colors.card }]} 
+              style={[styles.filterButton, { backgroundColor: theme.colors.card }]}
               onPress={toggleFilterModal}
             >
               <Ionicons
@@ -457,7 +412,7 @@ const BudgetScreen = () => {
                   {totalPercentage.toFixed(0)}%
                 </Text>
               </View>
-              
+
               {/* Filter indicators */}
               {(periodFilter !== 'all' || statusFilter !== 'all') && (
                 <View style={styles.activeFiltersContainer}>
@@ -486,7 +441,7 @@ const BudgetScreen = () => {
             <View style={styles.budgetList}>
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                  Category Budgets
+                  Your Budgets
                 </Text>
                 <TouchableOpacity onPress={() => router.push('/screens/AddBudgetScreen')}>
                   <Text
@@ -506,9 +461,9 @@ const BudgetScreen = () => {
               // No budgets match the current filters
               <>
                 <Ionicons name="filter-outline" size={64} color={theme.colors.textLight} />
-                <Text style={[styles.emptyStateText, {color: theme.colors.textLight}]}>No budgets match your filters.</Text>
-                <TouchableOpacity 
-                  style={[styles.addButtonEmpty, {backgroundColor: theme.colors.primary}]} 
+                <Text style={[styles.emptyStateText, { color: theme.colors.textLight }]}>No budgets match your filters.</Text>
+                <TouchableOpacity
+                  style={[styles.addButtonEmpty, { backgroundColor: theme.colors.primary }]}
                   onPress={resetFilters}
                 >
                   <Text style={styles.addButtonEmptyText}>Clear Filters</Text>
@@ -518,9 +473,9 @@ const BudgetScreen = () => {
               // No budgets at all
               <>
                 <Ionicons name="sad-outline" size={64} color={theme.colors.textLight} />
-                <Text style={[styles.emptyStateText, {color: theme.colors.textLight}]}>No budgets set up yet.</Text>
-                <TouchableOpacity 
-                  style={[styles.addButtonEmpty, {backgroundColor: theme.colors.primary}]} 
+                <Text style={[styles.emptyStateText, { color: theme.colors.textLight }]}>No budgets set up yet.</Text>
+                <TouchableOpacity
+                  style={[styles.addButtonEmpty, { backgroundColor: theme.colors.primary }]}
                   onPress={() => router.push('/screens/AddBudgetScreen')}
                 >
                   <Text style={styles.addButtonEmptyText}>Add Your First Budget</Text>
@@ -530,7 +485,7 @@ const BudgetScreen = () => {
           </View>
         )}
       </ScrollView>
-      
+
       {/* Filter Modal */}
       <Modal
         visible={showFilterModal}
@@ -546,12 +501,12 @@ const BudgetScreen = () => {
                 <Ionicons name="close" size={24} color={theme.colors.text} />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.filterSection}>
               <Text style={[styles.filterSectionTitle, { color: theme.colors.text }]}>Period Type</Text>
               <View style={styles.filterOptions}>
                 {(['all', 'weekly', 'monthly', 'yearly', 'custom'] as PeriodFilter[]).map((period) => (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     key={period}
                     style={[
                       styles.filterOption,
@@ -559,7 +514,7 @@ const BudgetScreen = () => {
                     ]}
                     onPress={() => setPeriodFilter(period)}
                   >
-                    <Text 
+                    <Text
                       style={[
                         styles.filterOptionText,
                         periodFilter === period && { color: 'white' }
@@ -571,12 +526,12 @@ const BudgetScreen = () => {
                 ))}
               </View>
             </View>
-            
+
             <View style={styles.filterSection}>
               <Text style={[styles.filterSectionTitle, { color: theme.colors.text }]}>Status</Text>
               <View style={styles.filterOptions}>
                 {(['all', 'active', 'completed'] as StatusFilter[]).map((status) => (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     key={status}
                     style={[
                       styles.filterOption,
@@ -584,7 +539,7 @@ const BudgetScreen = () => {
                     ]}
                     onPress={() => setStatusFilter(status)}
                   >
-                    <Text 
+                    <Text
                       style={[
                         styles.filterOptionText,
                         statusFilter === status && { color: 'white' }
@@ -596,15 +551,15 @@ const BudgetScreen = () => {
                 ))}
               </View>
             </View>
-            
+
             <View style={styles.modalActions}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: theme.colors.border }]}
                 onPress={resetFilters}
               >
                 <Text style={styles.modalButtonText}>Reset</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: theme.colors.primary }]}
                 onPress={applySelectedFilters}
               >
@@ -614,7 +569,7 @@ const BudgetScreen = () => {
           </View>
         </View>
       </Modal>
-      
+
       {/* History Modal */}
       <Modal
         visible={showHistoryModal}
@@ -626,13 +581,13 @@ const BudgetScreen = () => {
           <View style={[styles.modalContent, { backgroundColor: theme.colors.card }]}>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-                {selectedBudget?.categoryName} Budget History
+                Budget History
               </Text>
               <TouchableOpacity onPress={() => setShowHistoryModal(false)}>
                 <Ionicons name="close" size={24} color={theme.colors.text} />
               </TouchableOpacity>
             </View>
-            
+
             {isLoadingHistory ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -804,27 +759,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 15,
-  },
-  categoryContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  categoryIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  categoryName: {
-    marginLeft: 10,
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  completedBadge: {
-    marginLeft: 10,
-    fontSize: 10,
-    fontStyle: 'italic',
   },
   budgetActions: {
     flexDirection: 'row',

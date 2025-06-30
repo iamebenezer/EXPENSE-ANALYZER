@@ -16,7 +16,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../context/AuthContext';
-import { useCategories } from '../../../hooks/useCategories';
 import { getExpensesForDateRange, calculateTotalExpenses, getDateRangePresets } from '../../../utils/expenseUtils';
 import { generateCSV, generatePDFContent, getExportFileName, validateExportData, ExportData } from '../../../utils/exportUtils';
 import { Share } from 'react-native';
@@ -31,7 +30,7 @@ const ExportReportsScreen = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const router = useRouter();
-  const { categories, isLoading: categoriesLoading, fetchCategories } = useCategories();
+  const { isLoading: categoriesLoading, fetchCategories } = useCategories();
 
   // State
   const [selectedPreset, setSelectedPreset] = useState<string>('last30Days');
@@ -39,7 +38,6 @@ const ExportReportsScreen = () => {
   const [customEndDate, setCustomEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
   const [isExporting, setIsExporting] = useState(false);
   const [previewData, setPreviewData] = useState<ExportData | null>(null);
@@ -64,7 +62,7 @@ const ExportReportsScreen = () => {
         label: 'Custom Range'
       };
     }
-    
+
     const preset = datePresets[selectedPreset as keyof typeof datePresets];
     return {
       startDate: preset.startDate,
@@ -80,25 +78,22 @@ const ExportReportsScreen = () => {
     setIsLoadingPreview(true);
     try {
       const dateRange = getCurrentDateRange();
-      const categoryId = selectedCategoryId === 'all' ? undefined : selectedCategoryId;
-      
+
       const expenses = await getExpensesForDateRange(
         user.uid,
         dateRange.startDate,
-        dateRange.endDate,
-        categoryId
+        dateRange.endDate
       );
 
       const totalAmount = await calculateTotalExpenses(
         user.uid,
         dateRange.startDate,
-        dateRange.endDate,
-        categoryId
+        dateRange.endDate
       );
 
       const exportData: ExportData = {
         expenses,
-        categories,
+        categories: [], // No categories for period-based budgets
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
         totalAmount
@@ -116,10 +111,10 @@ const ExportReportsScreen = () => {
   // Load preview when parameters change
   useFocusEffect(
     useCallback(() => {
-      if (!categoriesLoading && categories.length > 0) {
+      if (!categoriesLoading) {
         loadPreviewData();
       }
-    }, [selectedPreset, customStartDate, customEndDate, selectedCategoryId, categoriesLoading, categories])
+    }, [selectedPreset, customStartDate, customEndDate, categoriesLoading])
   );
 
   // Handle export
@@ -225,7 +220,7 @@ const ExportReportsScreen = () => {
         {/* Date Range Selection */}
         <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Date Range</Text>
-          
+
           <View style={styles.formElement}>
             <Text style={[styles.label, { color: theme.colors.textLight }]}>Select Period</Text>
             <View style={[styles.pickerContainer, { borderColor: theme.colors.border, backgroundColor: theme.colors.background }]}>
@@ -255,51 +250,25 @@ const ExportReportsScreen = () => {
           )}
         </View>
 
-        {/* Category Filter */}
-        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Category Filter</Text>
-          
-          <View style={styles.formElement}>
-            <Text style={[styles.label, { color: theme.colors.textLight }]}>Select Category</Text>
-            {categoriesLoading ? (
-              <ActivityIndicator size="small" color={theme.colors.primary} />
-            ) : (
-              <View style={[styles.pickerContainer, { borderColor: theme.colors.border, backgroundColor: theme.colors.background }]}>
-                <Picker
-                  selectedValue={selectedCategoryId}
-                  onValueChange={(value) => setSelectedCategoryId(value)}
-                  style={[styles.picker, { color: theme.colors.text }]}
-                  dropdownIconColor={theme.colors.textLight}
-                >
-                  <Picker.Item label="All Categories" value="all" />
-                  {categories.map((category) => (
-                    <Picker.Item key={category.id} label={category.name} value={category.id!} />
-                  ))}
-                </Picker>
-              </View>
-            )}
-          </View>
-        </View>
-
         {/* Export Format */}
         <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Export Format</Text>
-          
+
           <View style={styles.formatButtons}>
             <TouchableOpacity
               style={[
                 styles.formatButton,
-                { 
+                {
                   backgroundColor: exportFormat === 'csv' ? theme.colors.primary : theme.colors.background,
-                  borderColor: theme.colors.border 
+                  borderColor: theme.colors.border
                 }
               ]}
               onPress={() => setExportFormat('csv')}
             >
-              <Ionicons 
-                name="document-text-outline" 
-                size={24} 
-                color={exportFormat === 'csv' ? 'white' : theme.colors.textLight} 
+              <Ionicons
+                name="document-text-outline"
+                size={24}
+                color={exportFormat === 'csv' ? 'white' : theme.colors.textLight}
               />
               <Text style={[
                 styles.formatButtonText,
@@ -318,17 +287,17 @@ const ExportReportsScreen = () => {
             <TouchableOpacity
               style={[
                 styles.formatButton,
-                { 
+                {
                   backgroundColor: exportFormat === 'pdf' ? theme.colors.primary : theme.colors.background,
-                  borderColor: theme.colors.border 
+                  borderColor: theme.colors.border
                 }
               ]}
               onPress={() => setExportFormat('pdf')}
             >
-              <Ionicons 
-                name="document-outline" 
-                size={24} 
-                color={exportFormat === 'pdf' ? 'white' : theme.colors.textLight} 
+              <Ionicons
+                name="document-outline"
+                size={24}
+                color={exportFormat === 'pdf' ? 'white' : theme.colors.textLight}
               />
               <Text style={[
                 styles.formatButtonText,
@@ -375,13 +344,6 @@ const ExportReportsScreen = () => {
                 <Text style={[styles.statLabel, { color: theme.colors.textLight }]}>Transactions</Text>
                 <Text style={[styles.statValue, { color: theme.colors.text }]}>
                   {previewData.expenses.length}
-                </Text>
-              </View>
-
-              <View style={styles.statItem}>
-                <Text style={[styles.statLabel, { color: theme.colors.textLight }]}>Categories</Text>
-                <Text style={[styles.statValue, { color: theme.colors.text }]}>
-                  {selectedCategoryId === 'all' ? 'All' : categories.find(c => c.id === selectedCategoryId)?.name || 'Unknown'}
                 </Text>
               </View>
             </View>

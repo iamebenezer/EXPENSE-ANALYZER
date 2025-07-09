@@ -124,7 +124,6 @@ const AddBudgetScreen = () => {
 
   const [limitAmount, setLimitAmount] = useState<string>('');
   const [selectedPeriod, setSelectedPeriod] = useState<Budget['period']>('monthly');
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   // State for custom date pickers
@@ -369,14 +368,7 @@ const AddBudgetScreen = () => {
     }
   };
 
-  if (isLoadingCategories) {
-    return (
-      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={{ color: theme.colors.text, marginTop: 10 }}>Loading categories...</Text>
-      </SafeAreaView>
-    );
-  }
+
 
   return (
     <SafeAreaView style={styles.container}>

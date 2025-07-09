@@ -7,12 +7,10 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -36,8 +34,6 @@ const ExportReportsScreen = () => {
   const [selectedPreset, setSelectedPreset] = useState<string>('last30Days');
   const [customStartDate, setCustomStartDate] = useState(new Date());
   const [customEndDate, setCustomEndDate] = useState(new Date());
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
   const [isExporting, setIsExporting] = useState(false);
   const [previewData, setPreviewData] = useState<ExportData | null>(null);
@@ -165,41 +161,6 @@ const ExportReportsScreen = () => {
     }
   };
 
-  // Render date picker
-  const renderDatePicker = (
-    date: Date,
-    setDate: (date: Date) => void,
-    show: boolean,
-    setShow: (show: boolean) => void,
-    label: string
-  ) => (
-    <View style={styles.datePickerContainer}>
-      <Text style={[styles.label, { color: theme.colors.textLight }]}>{label}</Text>
-      <TouchableOpacity
-        style={[styles.dateButton, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}
-        onPress={() => setShow(true)}
-      >
-        <Text style={[styles.dateButtonText, { color: theme.colors.text }]}>
-          {date.toLocaleDateString()}
-        </Text>
-        <Ionicons name="calendar-outline" size={20} color={theme.colors.textLight} />
-      </TouchableOpacity>
-      {show && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={(event, selectedDate) => {
-            setShow(false);
-            if (selectedDate) {
-              setDate(selectedDate);
-            }
-          }}
-        />
-      )}
-    </View>
-  );
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen
@@ -244,8 +205,18 @@ const ExportReportsScreen = () => {
 
           {selectedPreset === 'custom' && (
             <View style={styles.customDateContainer}>
-              {renderDatePicker(customStartDate, setCustomStartDate, showStartDatePicker, setShowStartDatePicker, 'Start Date')}
-              {renderDatePicker(customEndDate, setCustomEndDate, showEndDatePicker, setShowEndDatePicker, 'End Date')}
+              <View style={styles.datePickerContainer}>
+                <Text style={[styles.label, { color: theme.colors.textLight }]}>Start Date</Text>
+                <Text style={[styles.dateButtonText, { color: theme.colors.text }]}>
+                  {customStartDate.toLocaleDateString()}
+                </Text>
+              </View>
+              <View style={styles.datePickerContainer}>
+                <Text style={[styles.label, { color: theme.colors.textLight }]}>End Date</Text>
+                <Text style={[styles.dateButtonText, { color: theme.colors.text }]}>
+                  {customEndDate.toLocaleDateString()}
+                </Text>
+              </View>
             </View>
           )}
         </View>

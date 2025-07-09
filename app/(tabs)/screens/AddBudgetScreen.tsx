@@ -114,6 +114,15 @@ const getStyles = (theme: Theme) => StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
+  periodButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
 });
 
 const AddBudgetScreen = () => {
@@ -384,18 +393,21 @@ const AddBudgetScreen = () => {
       />
       <View style={styles.content}>
         <Text style={styles.label}>Budget Period</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedPeriod}
-            onValueChange={(itemValue) => setSelectedPeriod(itemValue)}
-            style={styles.picker}
-            dropdownIconColor={theme.colors.text}
-          >
-            <Picker.Item label="Monthly" value="monthly" />
-            <Picker.Item label="Weekly" value="weekly" />
-            <Picker.Item label="Yearly" value="yearly" />
-            <Picker.Item label="Custom" value="custom" />
-          </Picker>
+        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+          {['monthly', 'weekly', 'yearly', 'custom'].map((period) => (
+            <TouchableOpacity
+              key={period}
+              style={[
+                styles.periodButton,
+                selectedPeriod === period && { backgroundColor: theme.colors.primary }
+              ]}
+              onPress={() => setSelectedPeriod(period as any)}
+            >
+              <Text style={{ color: selectedPeriod === period ? 'white' : theme.colors.text }}>
+                {period.charAt(0).toUpperCase() + period.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {selectedPeriod === 'custom' && (
